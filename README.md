@@ -35,6 +35,34 @@ npm run dev
 
 O endpoint de health indica também qual storage e qual modo de pagamentos estão ativos.
 
+## Deploy na Vercel
+
+O repositório está preparado para ser publicado num único projeto da Vercel, com:
+
+- frontend Angular servido como site estático;
+- backend Express exposto como função serverless em `/api/*`;
+- fallback de SPA para as rotas do Angular.
+
+### Configuração recomendada
+
+1. Importe este repositório na Vercel usando a raiz do projeto.
+2. Mantenha os comandos definidos em [vercel.json](vercel.json).
+3. Configure as variáveis de ambiente de produção no painel da Vercel.
+
+### Limitação importante
+
+Em produção na Vercel, não conte com persistência em [backend/data/store.json](backend/data/store.json). O filesystem da função não é persistente. Para ambiente publicado, configure pelo menos:
+
+```env
+SITE_URL=https://seu-dominio.pt
+ADMIN_PASSWORD=...
+ADMIN_TOKEN=...
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+Sem `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`, a API ainda arranca, mas o fallback local em JSON não é adequado para produção serverless.
+
 ## Admin
 
 - URL: http://localhost:4200/admin

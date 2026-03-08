@@ -9,7 +9,7 @@ const Stripe = require('stripe');
 const { createClient } = require('@supabase/supabase-js');
 const { z } = require('zod');
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -327,9 +327,13 @@ app.put('/api/content', ensureAdmin, async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`API disponível em http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`API disponível em http://localhost:${port}`);
+  });
+}
+
+module.exports = app;
 
 async function listProducts() {
   if (supabase) {
