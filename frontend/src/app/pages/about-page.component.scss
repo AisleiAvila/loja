@@ -1,0 +1,37 @@
+.about {
+  display: grid;
+  gap: 1.5rem;
+  padding: 2rem 0 3rem;
+}
+
+.about-hero,
+.about-grid article {
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.about-hero {
+  display: grid;
+  gap: 1rem;
+}
+
+.about-hero h1 {
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.values ul {
+  display: grid;
+  gap: 0.75rem;
+  padding-left: 1rem;
+}
+
+@media (max-width: 780px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+}

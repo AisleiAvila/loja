@@ -1,0 +1,21 @@
+<section class="about section-shell" *ngIf="content() as page">
+  <div class="about-hero card">
+    <span class="eyebrow">Sobre a marca</span>
+    <h1>{{ page.brand.name }}</h1>
+    <p>{{ page.about.story }}</p>
+  </div>
+
+  <div class="about-grid">
+    <article class="card">
+      <h2>Missão</h2>
+      <p>{{ page.about.mission }}</p>
+    </article>
+
+    <article class="card values">
+      <h2>Valores</h2>
+      <ul>
+        <li *ngFor="let value of page.about.values">{{ value }}</li>
+      </ul>
+    </article>
+  </div>
+</section>

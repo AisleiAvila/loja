@@ -1,0 +1,14 @@
+<svg width="1200" height="1500" viewBox="0 0 1200 1500" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="1500" fill="#F4ECE3" />
+    <rect x="194" y="138" width="812" height="1224" rx="42" fill="#FFF8F1" />
+    <rect x="442" y="286" width="316" height="786" rx="158" fill="#F0E0CE" />
+    <rect x="484" y="218" width="232" height="132" rx="48" fill="#294440" />
+    <rect x="484" y="506" width="232" height="126" rx="24" fill="#FFFFFF" />
+    <text x="600" y="580" text-anchor="middle" fill="#294440" font-size="42"
+        font-family="'Segoe UI', sans-serif">RITUAL</text>
+    <text x="600" y="627" text-anchor="middle" fill="#294440" font-size="28"
+        font-family="'Segoe UI', sans-serif" letter-spacing="6">OCEÂNICO</text>
+    <circle cx="870" cy="318" r="126" fill="#B25D3B" fill-opacity="0.18" />
+    <circle cx="332" cy="1182" r="154" fill="#D8B38B" fill-opacity="0.4" />
+</svg>

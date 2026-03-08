@@ -1,0 +1,15 @@
+<svg width="1200" height="1500" viewBox="0 0 1200 1500" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="1500" fill="#F6EEE6" />
+    <rect x="164" y="156" width="872" height="1188" rx="48" fill="#FFF9F3" />
+    <rect x="380" y="332" width="440" height="624" rx="88" fill="#E9DCCB" />
+    <rect x="458" y="458" width="284" height="364" rx="40" fill="#FCFAF7" />
+    <path
+        d="M596 312C596 312 538 426 538 474C538 522 565 562 600 562C635 562 662 522 662 474C662 426 604 312 604 312H596Z"
+        fill="#C56D4C" />
+    <text x="600" y="640" text-anchor="middle" fill="#2A3B39" font-size="38"
+        font-family="'Segoe UI', sans-serif">VELA</text>
+    <text x="600" y="688" text-anchor="middle" fill="#2A3B39" font-size="28"
+        font-family="'Segoe UI', sans-serif" letter-spacing="8">BRUMA</text>
+    <circle cx="882" cy="1148" r="136" fill="#D5B18B" fill-opacity="0.38" />
+</svg>

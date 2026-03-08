@@ -1,0 +1,14 @@
+<svg width="1200" height="1500" viewBox="0 0 1200 1500" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="1500" fill="#F3EBE3" />
+    <rect x="176" y="150" width="848" height="1200" rx="46" fill="#FFF9F4" />
+    <rect x="464" y="242" width="272" height="182" rx="52" fill="#27413D" />
+    <rect x="406" y="382" width="388" height="760" rx="112" fill="#E8D8C4" />
+    <rect x="450" y="662" width="300" height="162" rx="28" fill="#FFFCF8" />
+    <text x="600" y="740" text-anchor="middle" fill="#27413D" font-size="38"
+        font-family="'Segoe UI', sans-serif">ESSÊNCIA</text>
+    <text x="600" y="790" text-anchor="middle" fill="#27413D" font-size="26"
+        font-family="'Segoe UI', sans-serif" letter-spacing="8">MAR</text>
+    <circle cx="310" cy="338" r="122" fill="#B25D3B" fill-opacity="0.18" />
+    <circle cx="864" cy="1176" r="142" fill="#D6B18A" fill-opacity="0.36" />
+</svg>

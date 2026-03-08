@@ -1,0 +1,36 @@
+<section class="product-page section-shell" *ngIf="product() as item">
+  <div class="gallery card">
+    <img class="main-image" [src]="selectedImage() || item.images[0]" [alt]="item.name" />
+    <div class="thumbs">
+      <button type="button" *ngFor="let image of item.images" (click)="selectImage(image)" [class.active]="selectedImage() === image">
+        <img [src]="image" [alt]="item.name" loading="lazy" />
+      </button>
+    </div>
+  </div>
+
+  <div class="summary card">
+    <span class="eyebrow">{{ item.badge || 'Produto premium' }}</span>
+    <h1>{{ item.name }}</h1>
+    <p class="lead">{{ item.description }}</p>
+
+    <div class="price-block">
+      <strong>{{ item.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</strong>
+      <span *ngIf="item.compareAtPrice">{{ item.compareAtPrice | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</span>
+    </div>
+
+    <ul class="benefit-list">
+      <li *ngFor="let benefit of item.benefits">{{ benefit }}</li>
+    </ul>
+
+    <div class="actions">
+      <button class="btn-secondary" type="button" (click)="buyNow()">Comprar agora</button>
+      <a class="btn-ghost" routerLink="/contacto">Falar com a equipa</a>
+    </div>
+
+    <div class="video-box" *ngIf="item.videoUrl">
+      <video [src]="item.videoUrl" controls preload="metadata">
+        <track default kind="captions" label="Português" srclang="pt" src="/captions-demo.vtt" />
+      </video>
+    </div>
+  </div>
+</section>

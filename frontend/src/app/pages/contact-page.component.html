@@ -1,0 +1,34 @@
+<section class="contact section-shell" *ngIf="content() as page">
+  <div class="contact-copy card">
+    <span class="eyebrow">Contacto</span>
+    <h1>Fale connosco antes da compra ou para apoio pós-venda.</h1>
+    <p>Escolha o canal mais rápido para a sua equipa ou deixe a sua mensagem.</p>
+
+    <div class="contact-list">
+      <a [href]="'mailto:' + page.contact.email">{{ page.contact.email }}</a>
+      <a [href]="'tel:' + page.contact.phone">{{ page.contact.phone }}</a>
+      <span>{{ page.contact.address }}</span>
+      <a [href]="whatsappLink" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+  </div>
+
+  <form class="contact-form card" (ngSubmit)="send()">
+    <label>
+      Nome
+      <input class="field" type="text" name="name" [(ngModel)]="form.name" required />
+    </label>
+
+    <label>
+      E-mail
+      <input class="field" type="email" name="email" [(ngModel)]="form.email" required />
+    </label>
+
+    <label>
+      Mensagem
+      <textarea class="textarea" name="message" [(ngModel)]="form.message" required></textarea>
+    </label>
+
+    <button class="btn-secondary" type="submit">Enviar</button>
+    <p class="status success" *ngIf="submitted()">O seu cliente de e-mail foi aberto com a mensagem preparada.</p>
+  </form>
+</section>

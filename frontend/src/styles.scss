@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+:root {
+	--bg: #f6efe6;
+	--bg-soft: #fbf7f2;
+	--surface: #fffdf9;
+	--surface-strong: #fff6ea;
+	--ink: #1f2d2a;
+	--muted: #667570;
+	--accent: #b25d3b;
+	--accent-soft: #d2a06a;
+	--line: rgba(31, 45, 42, 0.1);
+	--success: #198754;
+	--shadow-soft: 0 24px 60px rgba(44, 48, 43, 0.12);
+	--font-body: 'Manrope', sans-serif;
+	--font-display: 'Space Grotesk', sans-serif;
+	color-scheme: light;
+	scroll-behavior: smooth;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	min-height: 100%;
+}
+
+body {
+	font-family: var(--font-body);
+	background:
+		radial-gradient(circle at top left, rgba(210, 160, 106, 0.22), transparent 32%),
+		radial-gradient(circle at bottom right, rgba(178, 93, 59, 0.14), transparent 28%),
+		linear-gradient(180deg, var(--bg-soft), var(--bg));
+	color: var(--ink);
+}
+
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	background-image: linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+	background-size: 64px 64px;
+	mask-image: radial-gradient(circle at center, black 38%, transparent 92%);
+}
+
+h1,
+h2,
+h3,
+h4 {
+	font-family: var(--font-display);
+	line-height: 1.05;
+	letter-spacing: -0.03em;
+	margin: 0;
+}
+
+p {
+	line-height: 1.7;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+	font: inherit;
+}
+
+img,
+video {
+	max-width: 100%;
+	display: block;
+}
+
+.section-shell {
+	width: min(1180px, calc(100% - 2rem));
+	margin: 0 auto;
+}
+
+.eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	padding: 0.45rem 0.8rem;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.76);
+	border: 1px solid rgba(31, 45, 42, 0.08);
+	color: var(--muted);
+	font-weight: 700;
+	font-size: 0.8rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.btn,
+.btn-secondary,
+.btn-ghost {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	min-height: 3rem;
+	padding: 0.9rem 1.2rem;
+	border-radius: 999px;
+	text-decoration: none;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.btn {
+	background: var(--ink);
+	color: var(--surface);
+	box-shadow: 0 18px 38px rgba(31, 45, 42, 0.18);
+}
+
+.btn-secondary {
+	background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+	color: var(--surface);
+}
+
+.btn-ghost {
+	background: rgba(255, 255, 255, 0.78);
+	color: var(--ink);
+	border-color: rgba(31, 45, 42, 0.1);
+}
+
+.btn:hover,
+.btn-secondary:hover,
+.btn-ghost:hover {
+	transform: translateY(-2px);
+}
+
+.card {
+	border-radius: 1.6rem;
+	background: rgba(255, 253, 249, 0.85);
+	border: 1px solid rgba(31, 45, 42, 0.08);
+	box-shadow: var(--shadow-soft);
+}
+
+.field,
+.select,
+.textarea {
+	width: 100%;
+	min-height: 3.1rem;
+	border-radius: 1rem;
+	border: 1px solid rgba(31, 45, 42, 0.12);
+	background: rgba(255, 255, 255, 0.78);
+	padding: 0.85rem 1rem;
+	color: var(--ink);
+}
+
+.textarea {
+	min-height: 8rem;
+	resize: vertical;
+}
+
+.field:focus,
+.select:focus,
+.textarea:focus {
+	outline: 2px solid rgba(178, 93, 59, 0.24);
+	border-color: rgba(178, 93, 59, 0.4);
+}
+
+.status {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.45rem 0.8rem;
+	border-radius: 999px;
+	font-size: 0.85rem;
+	font-weight: 700;
+}
+
+.status.success {
+	background: rgba(25, 135, 84, 0.12);
+	color: var(--success);
+}
+
+.status.warning {
+	background: rgba(178, 93, 59, 0.12);
+	color: var(--accent);
+}

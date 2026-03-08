@@ -1,0 +1,89 @@
+{
+  "content": {
+    "brand": {
+      "name": "Luz do Atlântico",
+      "tagline": "Objetos sensoriais para casa e rotina",
+      "headline": "Uma coleção portuguesa com assinatura visual limpa, checkout rápido e operação pronta para produção.",
+      "heroVideoUrl": "",
+      "heroPosterUrl": "/brand/hero-poster.svg"
+    },
+    "about": {
+      "story": "A Luz do Atlântico nasceu entre Lisboa e a costa oeste, com a ideia de vender poucos produtos, mas apresentá-los com a disciplina visual de uma marca editorial. A experiência foi desenhada para parecer premium sem perder velocidade.",
+      "mission": "Aproximar design de produto, rotina e compra direta num site rápido, claro e preparado para campanhas de performance.",
+      "values": [
+        "Clareza na comunicação",
+        "Performance em mobile",
+        "Materiais e imagem com percepção premium"
+      ]
+    },
+    "contact": {
+      "email": "ola@luzdoatlantico.pt",
+      "phone": "+351 214 880 220",
+      "address": "Rua Nova do Carvalho 18, 1200-292 Lisboa",
+      "whatsapp": "+351214880220"
+    }
+  },
+  "products": [
+    {
+      "id": "ritual-oceanico",
+      "slug": "ritual-oceanico",
+      "name": "Ritual Oceânico",
+      "shortDescription": "Kit de cuidado diário com foco em textura leve e ritual completo.",
+      "description": "Um conjunto desenhado para campanhas de aquisição com ticket médio mais alto, embalagem forte e uma linguagem visual que sustenta valor percebido em mobile e desktop.",
+      "price": 59.9,
+      "compareAtPrice": 79.9,
+      "images": [
+        "/brand/products/ritual-oceanico.svg"
+      ],
+      "videoUrl": "",
+      "benefits": [
+        "Apresentação premium para campanhas de performance",
+        "Rotina simples com percepção de valor elevada",
+        "Boa adequação a públicos de compra impulsiva"
+      ],
+      "featured": true,
+      "badge": "Assinatura"
+    },
+    {
+      "id": "vela-bruma",
+      "slug": "vela-bruma",
+      "name": "Vela Bruma",
+      "shortDescription": "Vela aromática com copo fosco e fragrância quente de assinatura.",
+      "description": "Pensada para bundles de oferta e compras por impulso com forte componente visual, a Vela Bruma funciona bem em campanhas sazonais e páginas com storytelling curto.",
+      "price": 34.5,
+      "compareAtPrice": 42.0,
+      "images": [
+        "/brand/products/vela-bruma.svg"
+      ],
+      "videoUrl": "",
+      "benefits": [
+        "Excelente para campanhas sazonais",
+        "Produto com forte apelo visual",
+        "Encaixa bem em estratégias de cross-sell"
+      ],
+      "featured": true,
+      "badge": "Novo"
+    },
+    {
+      "id": "essencia-mar",
+      "slug": "essencia-mar",
+      "name": "Essência Mar",
+      "shortDescription": "Spray de ambiente com aroma fresco, presença leve e acabamento fosco.",
+      "description": "Uma referência pensada para elevar o valor médio do carrinho e suportar bundles com recompra, mantendo uma estética consistente com o restante catálogo.",
+      "price": 27.9,
+      "compareAtPrice": 35.0,
+      "images": [
+        "/brand/products/essencia-mar.svg"
+      ],
+      "videoUrl": "",
+      "benefits": [
+        "Ideal para campanhas de remarketing",
+        "Preço de entrada acessível",
+        "Bom potencial para bundles com outros produtos"
+      ],
+      "featured": true,
+      "badge": "Recorrência"
+    }
+  ],
+  "orders": []
+}

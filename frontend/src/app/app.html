@@ -1,0 +1,51 @@
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/" (click)="closeMobileMenu()">
+      <span class="brand-mark">LA</span>
+      <span class="brand-text">
+        <strong>{{ siteContent()?.brand?.name || 'Luz do Atlântico' }}</strong>
+        <small>{{ siteContent()?.brand?.tagline || 'Bem-estar com estética contemporânea' }}</small>
+      </span>
+    </a>
+
+    <button class="menu-toggle" type="button" (click)="toggleMobileMenu()" aria-label="Abrir menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="main-nav" [class.open]="mobileMenuOpen()">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">Home</a>
+      <a routerLink="/sobre" routerLinkActive="active" (click)="closeMobileMenu()">Sobre</a>
+      <a routerLink="/contacto" routerLinkActive="active" (click)="closeMobileMenu()">Contacto</a>
+      <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
+      <a class="nav-cta" routerLink="/checkout" (click)="closeMobileMenu()">Comprar</a>
+    </nav>
+  </header>
+
+  <main class="page-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="site-footer">
+    <div>
+      <strong>{{ siteContent()?.brand?.name || 'Luz do Atlântico' }}</strong>
+      <p>{{ siteContent()?.brand?.headline || 'Pequena coleção de produtos premium para rotinas simples e eficazes.' }}</p>
+    </div>
+    <div>
+      <span>{{ siteContent()?.contact?.email || 'ola@luzdoatlantico.pt' }}</span>
+      <span>{{ siteContent()?.contact?.phone || '+351 910 000 000' }}</span>
+    </div>
+  </footer>
+
+  <a
+    *ngIf="siteContent()?.contact?.whatsapp"
+    class="whatsapp-float"
+    [href]="whatsappLink"
+    target="_blank"
+    rel="noopener"
+    aria-label="Falar pelo WhatsApp"
+  >
+    WhatsApp
+  </a>
+</div>

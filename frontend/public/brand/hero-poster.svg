@@ -1,0 +1,24 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <rect width="1600" height="1200" fill="#F3E8DA" />
+    <circle cx="1230" cy="260" r="280" fill="#D9B58A" fill-opacity="0.65" />
+    <circle cx="360" cy="980" r="320" fill="#C06F4D" fill-opacity="0.18" />
+    <rect x="128" y="118" width="1344" height="964" rx="44" fill="#FFF9F2" />
+    <path
+        d="M1045 279C1157.11 279 1248 369.894 1248 482C1248 594.106 1157.11 685 1045 685H873V279H1045Z"
+        fill="#27413D" />
+    <path
+        d="M745 344H874V836H745C642.827 836 560 753.173 560 651V529C560 426.827 642.827 344 745 344Z"
+        fill="#EFE4D4" />
+    <rect x="701" y="402" width="216" height="52" rx="26" fill="#D7BA98" />
+    <rect x="637" y="748" width="356" height="28" rx="14" fill="#D7BA98" fill-opacity="0.7" />
+    <rect x="637" y="798" width="292" height="18" rx="9" fill="#D7BA98" fill-opacity="0.45" />
+    <path d="M252 331H484" stroke="#27413D" stroke-width="28" stroke-linecap="round" />
+    <path d="M252 392H602" stroke="#27413D" stroke-width="18" stroke-linecap="round" />
+    <path d="M252 444H534" stroke="#27413D" stroke-width="18" stroke-linecap="round" />
+    <rect x="252" y="540" width="202" height="64" rx="32" fill="#B25D3B" />
+    <text x="252" y="230" fill="#27413D" font-size="46" font-family="'Segoe UI', sans-serif"
+        letter-spacing="8">LUZ DO ATLÂNTICO</text>
+    <text x="252" y="806" fill="#27413D" font-size="32" font-family="'Segoe UI', sans-serif">Coleção
+        enxuta, presença premium, compra direta.</text>
+</svg>

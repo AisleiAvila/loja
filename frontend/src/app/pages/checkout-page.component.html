@@ -1,0 +1,92 @@
+<section class="checkout section-shell">
+  <form class="checkout-form card" [formGroup]="checkoutForm" (ngSubmit)="submit()">
+    <div class="section-title">
+      <span class="eyebrow">Checkout</span>
+      <h1>Concluir compra</h1>
+    </div>
+
+    <div class="form-grid">
+      <label>
+        Produto
+        <select class="select" formControlName="productId">
+          <option *ngFor="let product of products()" [value]="product.id">{{ product.name }}</option>
+        </select>
+      </label>
+
+      <label>
+        Quantidade
+        <input class="field" type="number" min="1" formControlName="quantity" />
+      </label>
+
+      <label>
+        Nome completo
+        <input class="field" type="text" formControlName="customerName" />
+      </label>
+
+      <label>
+        E-mail
+        <input class="field" type="email" formControlName="email" />
+      </label>
+
+      <label>
+        Telefone
+        <input class="field" type="text" formControlName="phone" />
+      </label>
+
+      <label>
+        Código postal
+        <input class="field" type="text" formControlName="postalCode" />
+      </label>
+
+      <label class="full-span">
+        Morada
+        <input class="field" type="text" formControlName="address" />
+      </label>
+
+      <label>
+        Cidade
+        <input class="field" type="text" formControlName="city" />
+      </label>
+
+      <label class="full-span">
+        Notas
+        <textarea class="textarea" formControlName="notes"></textarea>
+      </label>
+    </div>
+
+    <div class="payment-list">
+      <label class="payment-card" *ngFor="let method of paymentMethods">
+        <input type="radio" [value]="method.id" formControlName="paymentMethod" />
+        <span>{{ method.label }}</span>
+      </label>
+    </div>
+
+    <button class="btn-secondary" type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'A processar...' : 'Finalizar pedido' }}
+    </button>
+    <p class="status warning" *ngIf="infoMessage()">{{ infoMessage() }}</p>
+    <p class="status warning" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+  </form>
+
+  <aside class="checkout-summary card" *ngIf="selectedProduct() as product">
+    <span class="eyebrow">Resumo</span>
+    <img [src]="product.images[0]" [alt]="product.name" />
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.shortDescription }}</p>
+
+    <dl>
+      <div>
+        <dt>Preço unitário</dt>
+        <dd>{{ product.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</dd>
+      </div>
+      <div>
+        <dt>Quantidade</dt>
+        <dd>{{ checkoutForm.controls.quantity.value }}</dd>
+      </div>
+      <div class="total-row">
+        <dt>Total</dt>
+        <dd>{{ total() | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</dd>
+      </div>
+    </dl>
+  </aside>
+</section>

@@ -1,0 +1,95 @@
+<section class="hero section-shell">
+  <div class="hero-copy card">
+    <span class="eyebrow">Coleção portuguesa</span>
+    <h1>{{ content()?.brand?.headline }}</h1>
+    <p>
+      Produtos pensados para um catálogo curto, com identidade visual controlada,
+      meios de pagamento reais e um painel administrativo pronto para operação leve.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-secondary" href="#produtos">Explorar produtos</a>
+      <a class="btn-ghost" routerLink="/sobre">Conhecer a marca</a>
+    </div>
+    <ul class="hero-metrics">
+      <li>
+        <strong>24h</strong>
+        <span>Confirmação operacional e acompanhamento rápido</span>
+      </li>
+      <li>
+        <strong>PT</strong>
+        <span>Checkout adaptado ao mercado português</span>
+      </li>
+      <li>
+        <strong>3</strong>
+        <span>Produtos construídos para vender com clareza</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="hero-media card">
+    <ng-container *ngIf="content()?.brand?.heroVideoUrl; else posterOnly">
+      <video
+        [poster]="content()?.brand?.heroPosterUrl"
+        [src]="content()?.brand?.heroVideoUrl"
+        autoplay
+        muted
+        loop
+        playsinline
+      >
+        <track default kind="captions" label="Português" srclang="pt" src="/captions-demo.vtt" />
+      </video>
+    </ng-container>
+    <ng-template #posterOnly>
+      <img [src]="content()?.brand?.heroPosterUrl" alt="Coleção Luz do Atlântico" />
+    </ng-template>
+    <div class="hero-badge">
+      <span>Checkout real</span>
+      <strong>Stripe + operação local preparada</strong>
+    </div>
+  </div>
+</section>
+
+<section id="produtos" class="products section-shell">
+  <div class="section-heading">
+    <span class="eyebrow">Produtos</span>
+    <h2>Oferta curta, comunicação objetiva e foco total em conversão.</h2>
+  </div>
+
+  <div class="product-grid">
+    <article class="product-card card" *ngFor="let product of products()">
+      <div class="image-wrap">
+        <img [src]="product.images[0]" [alt]="product.name" loading="lazy" />
+        <span *ngIf="product.badge">{{ product.badge }}</span>
+      </div>
+      <div class="product-copy">
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.shortDescription }}</p>
+        <div class="product-meta">
+          <strong>{{ product.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</strong>
+          <a class="btn" [routerLink]="['/produto', product.slug]">Ver detalhes</a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="story-band section-shell card">
+  <div>
+    <span class="eyebrow">Porque funciona</span>
+    <h2>O site foi estruturado para vender sem ruído: prova visual, diferenciação e compra direta.</h2>
+  </div>
+  <div class="story-points">
+    <article>
+      <strong>Visual de marca</strong>
+      <p>Assets próprios, headline curta e hierarquia clara para tráfego pago e orgânico.</p>
+    </article>
+    <article>
+      <strong>Catálogo enxuto</strong>
+      <p>Galeria, benefícios, preço e CTA priorizados para uma decisão de compra mais rápida.</p>
+    </article>
+    <article>
+      <strong>Operação simples</strong>
+      <p>Admin leve, estado do pagamento e caminho aberto para Supabase e Stripe em produção.</p>
+    </article>
+  </div>
+</section>

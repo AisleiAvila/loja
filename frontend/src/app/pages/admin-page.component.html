@@ -1,0 +1,141 @@
+<section class="admin section-shell">
+  <div class="login card" *ngIf="!token(); else dashboard">
+    <span class="eyebrow">Admin</span>
+    <h1>Acesso protegido</h1>
+    <p>Entre com a palavra-passe definida no backend para gerir produtos e pedidos.</p>
+    <label>
+      Palavra-passe
+      <input class="field" type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" />
+    </label>
+    <button class="btn-secondary" type="button" (click)="login()">Entrar</button>
+    <p class="status warning" *ngIf="feedback()">{{ feedback() }}</p>
+  </div>
+
+  <ng-template #dashboard>
+    <div class="dashboard-grid">
+      <section class="editor card" *ngIf="selectedProduct() as product">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Produtos</span>
+            <h2>Editar catálogo</h2>
+          </div>
+          <select class="select" [ngModel]="selectedProductId()" (ngModelChange)="selectedProductId.set($event)">
+            <option *ngFor="let item of products()" [value]="item.id">{{ item.name }}</option>
+          </select>
+        </div>
+
+        <div class="editor-grid">
+          <label>
+            Nome
+            <input class="field" type="text" [(ngModel)]="product.name" />
+          </label>
+          <label>
+            Slug
+            <input class="field" type="text" [(ngModel)]="product.slug" />
+          </label>
+          <label class="full-span">
+            Descrição curta
+            <input class="field" type="text" [(ngModel)]="product.shortDescription" />
+          </label>
+          <label class="full-span">
+            Descrição completa
+            <textarea class="textarea" [(ngModel)]="product.description"></textarea>
+          </label>
+          <label>
+            Preço
+            <input class="field" type="number" [(ngModel)]="product.price" />
+          </label>
+          <label>
+            Selo
+            <input class="field" type="text" [(ngModel)]="product.badge" />
+          </label>
+          <label class="full-span">
+            Benefícios, um por linha
+            <textarea class="textarea" [ngModel]="product.benefits.join('\n')" (ngModelChange)="updateProductList('benefits', $event)"></textarea>
+          </label>
+          <label class="full-span">
+            Imagens, uma por linha
+            <textarea class="textarea" [ngModel]="product.images.join('\n')" (ngModelChange)="updateProductList('images', $event)"></textarea>
+          </label>
+        </div>
+
+        <button class="btn-secondary" type="button" (click)="saveProduct()">Guardar produto</button>
+      </section>
+
+      <section class="editor card" *ngIf="content() as page">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Conteúdo</span>
+            <h2>Sobre e contacto</h2>
+          </div>
+        </div>
+
+        <div class="editor-grid">
+          <label>
+            Nome da marca
+            <input class="field" type="text" [(ngModel)]="page.brand.name" />
+          </label>
+          <label>
+            Tagline
+            <input class="field" type="text" [(ngModel)]="page.brand.tagline" />
+          </label>
+          <label class="full-span">
+            Headline
+            <input class="field" type="text" [(ngModel)]="page.brand.headline" />
+          </label>
+          <label class="full-span">
+            História
+            <textarea class="textarea" [(ngModel)]="page.about.story"></textarea>
+          </label>
+          <label class="full-span">
+            Missão
+            <textarea class="textarea" [(ngModel)]="page.about.mission"></textarea>
+          </label>
+          <label>
+            E-mail
+            <input class="field" type="email" [(ngModel)]="page.contact.email" />
+          </label>
+          <label>
+            Telefone
+            <input class="field" type="text" [(ngModel)]="page.contact.phone" />
+          </label>
+          <label>
+            WhatsApp
+            <input class="field" type="text" [(ngModel)]="page.contact.whatsapp" />
+          </label>
+          <label class="full-span">
+            Morada
+            <input class="field" type="text" [(ngModel)]="page.contact.address" />
+          </label>
+        </div>
+
+        <button class="btn-secondary" type="button" (click)="saveContent()">Guardar conteúdo</button>
+      </section>
+
+      <section class="orders card">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Pedidos</span>
+            <h2>Últimas encomendas</h2>
+          </div>
+        </div>
+
+        <div class="order-row" *ngFor="let order of orders()">
+          <div>
+            <strong>#{{ order.id }}</strong>
+            <span>{{ order.productName }}</span>
+          </div>
+          <div>
+            <span>{{ order.total | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</span>
+            <small>{{ order.createdAt | date: 'short' : '' : 'pt-PT' }}</small>
+          </div>
+          <span class="status" [class.success]="order.status === 'paid'" [class.warning]="order.status !== 'paid'">
+            {{ order.status }}
+          </span>
+        </div>
+      </section>
+    </div>
+
+    <p class="status success" *ngIf="feedback()">{{ feedback() }}</p>
+  </ng-template>
+</section>

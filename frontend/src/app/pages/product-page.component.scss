@@ -1,0 +1,104 @@
+.product-page {
+  display: grid;
+  grid-template-columns: 1fr 0.92fr;
+  gap: 1.5rem;
+  padding: 2rem 0 3rem;
+}
+
+.gallery,
+.summary {
+  padding: 1.25rem;
+}
+
+.main-image {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 1.25rem;
+}
+
+.thumbs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.thumbs button {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: transparent;
+}
+
+.thumbs button.active {
+  border-color: var(--accent);
+}
+
+.thumbs img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.summary {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.summary h1 {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+}
+
+.lead {
+  font-size: 1.05rem;
+}
+
+.price-block {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+}
+
+.price-block strong {
+  font-family: var(--font-display);
+  font-size: 2rem;
+}
+
+.price-block span {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.benefit-list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.benefit-list li {
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.video-box video {
+  width: 100%;
+  border-radius: 1.1rem;
+}
+
+@media (max-width: 900px) {
+  .product-page {
+    grid-template-columns: 1fr;
+  }
+}

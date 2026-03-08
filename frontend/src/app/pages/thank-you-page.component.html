@@ -1,0 +1,48 @@
+<section class="thanks section-shell card" *ngIf="order() as item; else emptyState">
+  <span class="eyebrow">Obrigado</span>
+  <h1>{{ item.status === 'paid' ? 'Pagamento confirmado com sucesso.' : 'Pedido recebido com sucesso.' }}</h1>
+  <p>
+    Enviámos a confirmação para {{ item.email }}.
+    {{ item.status === 'awaiting_payment' ? 'O pedido aguarda confirmação do pagamento.' : 'A equipa pode acompanhar o estado no painel administrativo.' }}
+  </p>
+
+  <div class="summary-grid">
+    <article>
+      <strong>Pedido</strong>
+      <span>#{{ item.id }}</span>
+    </article>
+    <article>
+      <strong>Produto</strong>
+      <span>{{ item.productName }}</span>
+    </article>
+    <article>
+      <strong>Total</strong>
+      <span>{{ item.total | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</span>
+    </article>
+    <article>
+      <strong>Data</strong>
+      <span>{{ item.createdAt | date: 'short' : '' : 'pt-PT' }}</span>
+    </article>
+    <article>
+      <strong>Estado</strong>
+      <span>{{ item.status }}</span>
+    </article>
+  </div>
+
+  <a *ngIf="item.status === 'awaiting_payment' && item.paymentUrl" class="btn" [href]="item.paymentUrl">Retomar pagamento</a>
+
+  <a class="btn-secondary" routerLink="/">Voltar à home</a>
+</section>
+
+<ng-template #emptyState>
+  <section class="thanks section-shell card empty" *ngIf="!loading(); else loadingState">
+    <h1>Não há um pedido recente para mostrar.</h1>
+    <a class="btn" routerLink="/checkout">Ir para checkout</a>
+  </section>
+</ng-template>
+
+<ng-template #loadingState>
+  <section class="thanks section-shell card empty">
+    <h1>A carregar resumo do pedido...</h1>
+  </section>
+</ng-template>
