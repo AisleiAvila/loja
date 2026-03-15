@@ -51,7 +51,7 @@
       "shortDescription": "Vela aromática com copo fosco e fragrância quente de assinatura.",
       "description": "Pensada para bundles de oferta e compras por impulso com forte componente visual, a Vela Bruma funciona bem em campanhas sazonais e páginas com storytelling curto.",
       "price": 34.5,
-      "compareAtPrice": 42.0,
+      "compareAtPrice": 42,
       "images": [
         "/brand/products/vela-bruma.svg"
       ],
@@ -71,7 +71,7 @@
       "shortDescription": "Spray de ambiente com aroma fresco, presença leve e acabamento fosco.",
       "description": "Uma referência pensada para elevar o valor médio do carrinho e suportar bundles com recompra, mantendo uma estética consistente com o restante catálogo.",
       "price": 27.9,
-      "compareAtPrice": 35.0,
+      "compareAtPrice": 35,
       "images": [
         "/brand/products/essencia-mar.svg"
       ],
@@ -83,6 +83,24 @@
       ],
       "featured": true,
       "badge": "Recorrência"
+    },
+    {
+      "id": "produto-teste",
+      "slug": "produto-teste",
+      "name": "Produto Teste",
+      "shortDescription": "adadfa da df af af a f ",
+      "description": "adDF sf  F af AF af A FafSGFADGSDSFDGFDSH sf sf s g asdg sdg",
+      "price": 6,
+      "compareAtPrice": 4,
+      "images": [
+        "/api/assets/blob/products/1773600721239-0a730c7c.png"
+      ],
+      "videoUrl": "",
+      "benefits": [
+        "sfdsfdsgfsd gsd g sd  sdh"
+      ],
+      "featured": false,
+      "badge": ""
     }
   ],
   "orders": []

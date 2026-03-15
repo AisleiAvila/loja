@@ -68,6 +68,10 @@ export interface AdminLoginResponse {
   token: string;
 }
 
+export interface UploadAssetResponse {
+  url: string;
+}
+
 export interface CreateOrderResponse {
   order: Order;
   redirectUrl: string;

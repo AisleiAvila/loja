@@ -29,11 +29,18 @@ Resultado esperado:
 {
   "ok": true,
   "storage": "supabase",
+  "assetStorage": "local-filesystem",
   "payments": "offline"
 }
 ```
 
-## 3. Stripe
+## 3. Vercel Blob
+
+- [ ] Criar ou ligar o store `loja-blob` na Vercel
+- [ ] Confirmar que `BLOB_READ_WRITE_TOKEN` foi adicionado ao projeto
+- [ ] Confirmar que a API responde com `assetStorage: vercel-blob` no healthcheck no ambiente publicado
+
+## 4. Stripe
 
 - [ ] Preencher `STRIPE_SECRET_KEY`
 - [ ] Preencher `STRIPE_WEBHOOK_SECRET`
@@ -48,7 +55,7 @@ Validação rápida:
 - [ ] Confirmar que o redirecionamento abre o Stripe Checkout
 - [ ] Confirmar que o pedido passa para `paid` após o webhook
 
-## 4. SMTP
+## 5. SMTP
 
 - [ ] Preencher `SMTP_HOST`
 - [ ] Preencher `SMTP_PORT`
@@ -58,7 +65,7 @@ Validação rápida:
 
 Se não configurar SMTP, a aplicação continua a funcionar, mas sem envio real de e-mails.
 
-## 5. Produção
+## 6. Produção
 
 - [ ] Atualizar [frontend/public/robots.txt](frontend/public/robots.txt) com o domínio final
 - [ ] Atualizar [frontend/public/sitemap.xml](frontend/public/sitemap.xml) com o domínio final
@@ -73,7 +80,7 @@ npm run build --prefix frontend
 node --check backend/index.js
 ```
 
-## 6. Verificação final
+## 7. Verificação final
 
 - [ ] Home carrega corretamente
 - [ ] Produtos aparecem com dados esperados

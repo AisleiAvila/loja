@@ -33,7 +33,7 @@ npm run dev
 - Frontend: http://localhost:4200
 - Backend: http://localhost:3000/api/health
 
-O endpoint de health indica também qual storage e qual modo de pagamentos estão ativos.
+O endpoint de health indica também qual storage, qual asset storage e qual modo de pagamentos estão ativos.
 
 ## Deploy na Vercel
 
@@ -59,9 +59,11 @@ ADMIN_PASSWORD=...
 ADMIN_TOKEN=...
 SUPABASE_URL=...
 SUPABASE_SERVICE_ROLE_KEY=...
+BLOB_READ_WRITE_TOKEN=...
 ```
 
 Sem `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`, a API ainda arranca, mas o fallback local em JSON não é adequado para produção serverless.
+Sem `BLOB_READ_WRITE_TOKEN`, uploads feitos no painel admin caem no fallback local, que não deve ser tratado como storage persistente de produção.
 
 ## Admin
 
@@ -85,7 +87,7 @@ ADMIN_TOKEN=local-admin-token
 
 Com estas quatro variáveis, a aplicação já arranca com storage local em JSON e pagamentos manuais.
 
-### Obrigatórias para produção com Supabase e Stripe
+### Obrigatórias para produção com Supabase, Vercel Blob e Stripe
 
 ```env
 SITE_URL=https://seu-dominio.pt
@@ -93,6 +95,7 @@ ADMIN_PASSWORD=...
 ADMIN_TOKEN=...
 SUPABASE_URL=...
 SUPABASE_SERVICE_ROLE_KEY=...
+BLOB_READ_WRITE_TOKEN=...
 STRIPE_SECRET_KEY=...
 STRIPE_WEBHOOK_SECRET=...
 ```
@@ -113,6 +116,7 @@ Notas rápidas:
 
 - `SMTP_*` só é necessário para envio real de e-mails transacionais.
 - `SUPABASE_ANON_KEY` não é usada pelo backend atual; pode ser útil se depois quiser expor chamadas diretas do frontend ao Supabase.
+- `BLOB_READ_WRITE_TOKEN` ativa Vercel Blob como storage principal de imagens. O nome do store criado na Vercel, como `loja-blob`, não precisa ser configurado no código.
 - `STRIPE_PAYMENT_METHOD_TYPES` pode ficar em `card` para o cenário atual.
 
 ## Supabase
@@ -126,7 +130,15 @@ SUPABASE_URL=...
 SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
-Se estas variáveis não estiverem definidas, a aplicação continua a usar [backend/data/store.json](backend/data/store.json).
+Se estas variáveis não estiverem definidas, a aplicação continua a usar [backend/data/store.json](backend/data/store.json), o que não é adequado para produção.
+
+## Vercel Blob
+
+1. Crie ou ligue o store `loja-blob` na Vercel.
+2. Confirme que a variável `BLOB_READ_WRITE_TOKEN` foi adicionada ao projeto.
+3. Faça um novo deploy.
+
+Se esta variável não estiver definida, a aplicação continua a usar fallback local para upload de imagens.
 
 ## Stripe
 

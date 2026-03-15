@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { AdminLoginResponse, CreateOrderResponse, Order, OrderFormValue, Product, SiteContent } from '../types';
+import { AdminLoginResponse, CreateOrderResponse, Order, OrderFormValue, Product, SiteContent, UploadAssetResponse } from '../types';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +37,34 @@ export class ApiService {
 
   getOrders(token: string): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.baseUrl}/orders`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  createProduct(token: string, payload: Omit<Product, 'id'> & { id?: string }): Observable<Product> {
+    return this.http.post<Product>(`${this.baseUrl}/products`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  uploadProductImage(token: string, file: File): Observable<UploadAssetResponse> {
+    const payload = new FormData();
+    payload.append('image', file);
+
+    return this.http.post<UploadAssetResponse>(`${this.baseUrl}/uploads/image`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  deleteUploadedAsset(token: string, url: string): Observable<void> {
+    return this.http.request<void>('delete', `${this.baseUrl}/uploads/image`, {
+      headers: { Authorization: `Bearer ${token}` },
+      body: { url }
+    });
+  }
+
+  deleteProduct(token: string, productId: string): Observable<Product> {
+    return this.http.delete<Product>(`${this.baseUrl}/products/${productId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
   }

@@ -4,8 +4,11 @@ const express = require('express');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { Readable } = require('node:stream');
+const multer = require('multer');
 const nodemailer = require('nodemailer');
 const Stripe = require('stripe');
+const { del, get, put } = require('@vercel/blob');
 const { createClient } = require('@supabase/supabase-js');
 const { z } = require('zod');
 
@@ -14,6 +17,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 const port = Number(process.env.PORT || 3000);
 const dataFile = path.join(__dirname, 'data', 'store.json');
+const uploadDir = path.join(__dirname, 'data', 'uploads');
 const siteUrl = (process.env.SITE_URL || 'http://localhost:4200').replace(/\/$/, '');
 const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 const adminToken = process.env.ADMIN_TOKEN || 'local-admin-token';
@@ -21,6 +25,7 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const blobReadWriteToken = process.env.BLOB_READ_WRITE_TOKEN;
 const stripePaymentMethodTypes = (process.env.STRIPE_PAYMENT_METHOD_TYPES || 'card')
   .split(',')
   .map((value) => value.trim())
@@ -36,6 +41,20 @@ const supabase = supabaseUrl && supabaseServiceRoleKey
   : null;
 
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
+const allowedImageMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']);
+const invalidImageTypeMessage = 'Apenas imagens JPG, PNG, WebP e SVG são permitidas.';
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, callback) => {
+    if (!allowedImageMimeTypes.has(file.mimetype)) {
+      callback(new Error(invalidImageTypeMessage));
+      return;
+    }
+
+    callback(null, true);
+  }
+});
 
 const assetUrlSchema = z
   .string()
@@ -76,6 +95,10 @@ const productSchema = z.object({
   badge: z.string().optional()
 });
 
+const newProductSchema = productSchema.omit({ id: true }).extend({
+  id: z.string().optional()
+});
+
 const contentSchema = z.object({
   brand: z.object({
     name: z.string(),
@@ -98,6 +121,7 @@ const contentSchema = z.object({
 });
 
 app.use(cors({ origin: true, credentials: true }));
+app.use('/uploads', express.static(uploadDir));
 
 app.post('/api/payments/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   if (!stripe || !stripeWebhookSecret) {
@@ -160,9 +184,16 @@ app.post('/api/payments/stripe/webhook', express.raw({ type: 'application/json' 
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => {
+  let assetStorage = 'local-filesystem';
+
+  if (blobReadWriteToken) {
+    assetStorage = 'vercel-blob';
+  }
+
   res.json({
     ok: true,
     storage: supabase ? 'supabase' : 'local-json',
+    assetStorage,
     payments: stripe ? 'stripe' : 'offline'
   });
 });
@@ -289,6 +320,139 @@ app.get('/api/orders', ensureAdmin, async (_req, res) => {
   res.json(orders);
 });
 
+app.post('/api/uploads/image', ensureAdmin, upload.single('image'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Nenhum ficheiro enviado.' });
+    }
+
+    const fileExtension = getImageExtension(req.file);
+    const fileName = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}${fileExtension}`;
+
+    if (blobReadWriteToken) {
+      const blobPathname = `products/${fileName}`;
+
+      try {
+        const blob = await put(blobPathname, req.file.buffer, {
+          access: 'public',
+          addRandomSuffix: false,
+          contentType: req.file.mimetype,
+          token: blobReadWriteToken
+        });
+
+        return res.status(201).json({ url: blob.url });
+      } catch (error) {
+        if (!isPrivateBlobStoreError(error)) {
+          throw error;
+        }
+
+        await put(blobPathname, req.file.buffer, {
+          access: 'private',
+          addRandomSuffix: false,
+          contentType: req.file.mimetype,
+          token: blobReadWriteToken
+        });
+
+        return res.status(201).json({ url: buildManagedBlobProxyUrl(blobPathname) });
+      }
+    }
+
+    await fs.mkdir(uploadDir, { recursive: true });
+    await fs.writeFile(path.join(uploadDir, fileName), req.file.buffer);
+
+    return res.status(201).json({ url: `/uploads/${fileName}` });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get(/^\/api\/assets\/blob\/(.+)$/, async (req, res, next) => {
+  try {
+    if (!blobReadWriteToken) {
+      return res.status(404).json({ message: 'Storage de imagens não configurado.' });
+    }
+
+    const blobPathname = decodeManagedBlobPathname(req.params[0]);
+
+    if (!blobPathname) {
+      return res.status(400).json({ message: 'Asset inválido.' });
+    }
+
+    const asset = await get(blobPathname, {
+      access: 'private',
+      token: blobReadWriteToken
+    });
+
+    if (!asset || asset.statusCode !== 200 || !asset.stream) {
+      return res.status(404).json({ message: 'Asset não encontrado.' });
+    }
+
+    res.setHeader('Content-Type', asset.blob.contentType || 'application/octet-stream');
+    res.setHeader('Cache-Control', asset.blob.cacheControl || 'public, max-age=3600');
+    res.setHeader('Content-Disposition', asset.blob.contentDisposition || 'inline');
+    Readable.fromWeb(asset.stream).pipe(res);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/uploads/image', ensureAdmin, async (req, res, next) => {
+  try {
+    const assetUrl = typeof req.body?.url === 'string' ? req.body.url : '';
+
+    if (!assetUrl) {
+      return res.status(400).json({ message: 'URL do asset em falta.' });
+    }
+
+    const deleted = await deleteManagedAsset(assetUrl);
+
+    if (!deleted) {
+      return res.status(400).json({ message: 'O asset indicado não é gerido pela aplicação.' });
+    }
+
+    return res.status(204).send();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/products', ensureAdmin, async (req, res) => {
+  try {
+    const payload = newProductSchema.parse(req.body);
+    const productId = normalizeProductId(payload.id || payload.slug || payload.name);
+
+    if (!productId) {
+      return res.status(400).json({ message: 'Não foi possível gerar um identificador para o produto.' });
+    }
+
+    const existingById = await getProductById(productId);
+
+    if (existingById) {
+      return res.status(409).json({ message: 'Já existe um produto com este identificador.' });
+    }
+
+    const existingBySlug = await getProductBySlug(payload.slug);
+
+    if (existingBySlug) {
+      return res.status(409).json({ message: 'Já existe um produto com este slug.' });
+    }
+
+    const createdProduct = productSchema.parse({
+      ...payload,
+      id: productId
+    });
+
+    const savedProduct = await saveProduct(createdProduct);
+    return res.status(201).json(savedProduct);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Produto inválido.', issues: error.issues });
+    }
+
+    return res.status(500).json({ message: 'Erro interno ao criar produto.' });
+  }
+});
+
 app.put('/api/products/:id', ensureAdmin, async (req, res) => {
   try {
     const existingProduct = await getProductById(req.params.id);
@@ -302,6 +466,12 @@ app.put('/api/products/:id', ensureAdmin, async (req, res) => {
       ...req.body
     });
 
+    const conflictingProduct = await getProductBySlug(updatedProduct.slug);
+
+    if (conflictingProduct && conflictingProduct.id !== existingProduct.id) {
+      return res.status(409).json({ message: 'Já existe um produto com este slug.' });
+    }
+
     const savedProduct = await saveProduct(updatedProduct);
     return res.json(savedProduct);
   } catch (error) {
@@ -310,6 +480,27 @@ app.put('/api/products/:id', ensureAdmin, async (req, res) => {
     }
 
     return res.status(500).json({ message: 'Erro interno ao atualizar produto.' });
+  }
+});
+
+app.delete('/api/products/:id', ensureAdmin, async (req, res, next) => {
+  try {
+    const existingProduct = await getProductById(req.params.id);
+
+    if (!existingProduct) {
+      return res.status(404).json({ message: 'Produto não encontrado.' });
+    }
+
+    if (await hasOrdersForProduct(req.params.id)) {
+      return res.status(409).json({ message: 'Não é possível apagar um produto com pedidos associados.' });
+    }
+
+    await deleteManagedAssets(existingProduct.images);
+
+    const deletedProduct = await deleteProduct(req.params.id);
+    return res.json(deletedProduct);
+  } catch (error) {
+    return next(error);
   }
 });
 
@@ -413,6 +604,22 @@ async function getOrderById(orderId) {
   return store.orders.find((order) => order.id === orderId) || null;
 }
 
+async function hasOrdersForProduct(productId) {
+  if (supabase) {
+    const { count, error } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('product_id', productId);
+
+    if (!error) {
+      return Boolean(count);
+    }
+  }
+
+  const store = await readLocalStore();
+  return store.orders.some((order) => order.productId === productId);
+}
+
 async function createOrder(order) {
   if (supabase) {
     const { data, error } = await supabase.from('orders').insert(serializeOrder(order)).select().single();
@@ -484,6 +691,73 @@ async function saveProduct(product) {
   return product;
 }
 
+async function deleteProduct(productId) {
+  if (supabase) {
+    const { data, error } = await supabase.from('products').delete().eq('id', productId).select().maybeSingle();
+
+    if (!error && data) {
+      return mapProductRow(data);
+    }
+  }
+
+  const store = await readLocalStore();
+  const productIndex = store.products.findIndex((product) => product.id === productId);
+
+  if (productIndex === -1) {
+    return null;
+  }
+
+  const [removedProduct] = store.products.splice(productIndex, 1);
+  await writeLocalStore(store);
+  return removedProduct;
+}
+
+async function deleteManagedAsset(assetUrl) {
+  if (isLocalUploadAsset(assetUrl)) {
+    const fileName = path.basename(assetUrl);
+    const absoluteFilePath = path.join(uploadDir, fileName);
+
+    await fs.rm(absoluteFilePath, { force: true });
+    return true;
+  }
+
+  const managedBlobPathname = getManagedBlobPathname(assetUrl);
+
+  if (blobReadWriteToken && managedBlobPathname) {
+    await del(managedBlobPathname, { token: blobReadWriteToken });
+    return true;
+  }
+
+  if (blobReadWriteToken && isVercelBlobAsset(assetUrl)) {
+    await del(assetUrl, { token: blobReadWriteToken });
+    return true;
+  }
+
+  if (supabase) {
+    const supabaseAssetPath = getSupabaseStorageAssetPath(assetUrl);
+
+    if (supabaseAssetPath) {
+      const { error } = await supabase.storage.from('product-assets').remove([supabaseAssetPath]);
+
+      if (!error) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+async function deleteManagedAssets(assetUrls) {
+  for (const assetUrl of assetUrls) {
+    try {
+      await deleteManagedAsset(assetUrl);
+    } catch {
+      // Ignore orphan-cleanup failures to avoid blocking the main operation.
+    }
+  }
+}
+
 async function saveContent(content) {
   if (supabase) {
     const { data, error } = await supabase
@@ -518,6 +792,137 @@ async function readLocalStore() {
 
 async function writeLocalStore(store) {
   await fs.writeFile(dataFile, JSON.stringify(store, null, 2));
+}
+
+function normalizeProductId(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replaceAll(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replaceAll(/[^a-z0-9]+/g, '-')
+    .replaceAll(/(^-|-$)/g, '');
+}
+
+function getImageExtension(file) {
+  const extensionByMimeType = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+    'image/svg+xml': '.svg'
+  };
+
+  const extensionFromMimeType = extensionByMimeType[file.mimetype];
+
+  if (extensionFromMimeType) {
+    return extensionFromMimeType;
+  }
+
+  return path.extname(file.originalname || '').toLowerCase() || '.bin';
+}
+
+function isLocalUploadAsset(assetUrl) {
+  return typeof assetUrl === 'string' && assetUrl.startsWith('/uploads/');
+}
+
+function getSupabaseStorageAssetPath(assetUrl) {
+  if (!supabaseUrl || typeof assetUrl !== 'string' || !/^https?:\/\//.test(assetUrl)) {
+    return null;
+  }
+
+  try {
+    const parsedAssetUrl = new URL(assetUrl);
+    const expectedPrefix = '/storage/v1/object/public/product-assets/';
+
+    if (!parsedAssetUrl.href.startsWith(supabaseUrl)) {
+      return null;
+    }
+
+    if (!parsedAssetUrl.pathname.startsWith(expectedPrefix)) {
+      return null;
+    }
+
+    return decodeURIComponent(parsedAssetUrl.pathname.slice(expectedPrefix.length));
+  } catch {
+    return null;
+  }
+}
+
+function isVercelBlobAsset(assetUrl) {
+  if (typeof assetUrl !== 'string' || !/^https?:\/\//.test(assetUrl)) {
+    return false;
+  }
+
+  try {
+    const hostname = new URL(assetUrl).hostname;
+    return hostname.includes('blob.vercel-storage.com');
+  } catch {
+    return false;
+  }
+}
+
+function buildManagedBlobProxyUrl(blobPathname) {
+  return `/api/assets/blob/${encodeManagedBlobPathname(blobPathname)}`;
+}
+
+function getManagedBlobPathname(assetUrl) {
+  if (typeof assetUrl !== 'string' || !assetUrl) {
+    return null;
+  }
+
+  const proxyPathPrefix = '/api/assets/blob/';
+
+  if (assetUrl.startsWith(proxyPathPrefix)) {
+    return decodeManagedBlobPathname(assetUrl.slice(proxyPathPrefix.length));
+  }
+
+  if (!/^https?:\/\//.test(assetUrl)) {
+    return null;
+  }
+
+  try {
+    const parsedAssetUrl = new URL(assetUrl);
+
+    if (!parsedAssetUrl.pathname.startsWith(proxyPathPrefix)) {
+      return null;
+    }
+
+    return decodeManagedBlobPathname(parsedAssetUrl.pathname.slice(proxyPathPrefix.length));
+  } catch {
+    return null;
+  }
+}
+
+function encodeManagedBlobPathname(blobPathname) {
+  return String(blobPathname || '')
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+}
+
+function decodeManagedBlobPathname(encodedBlobPathname) {
+  if (typeof encodedBlobPathname !== 'string' || !encodedBlobPathname.trim()) {
+    return null;
+  }
+
+  try {
+    const pathname = encodedBlobPathname
+      .split('/')
+      .map((segment) => decodeURIComponent(segment))
+      .join('/');
+
+    if (!pathname || pathname.includes('..')) {
+      return null;
+    }
+
+    return pathname;
+  } catch {
+    return null;
+  }
+}
+
+function isPrivateBlobStoreError(error) {
+  return error instanceof Error && error.message.includes('Cannot use public access on a private store');
 }
 
 function ensureAdmin(req, res, next) {
@@ -678,3 +1083,24 @@ async function sendConfirmationEmail(order, stage) {
     ].join('\n')
   });
 }
+
+app.use((error, _req, res, next) => {
+  if (res.headersSent) {
+    return next(error);
+  }
+
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'A imagem deve ter no máximo 5 MB.' });
+    }
+
+    return res.status(400).json({ message: 'Erro ao processar upload da imagem.' });
+  }
+
+  if (error?.message === invalidImageTypeMessage) {
+    return res.status(400).json({ message: invalidImageTypeMessage });
+  }
+
+  console.error('Erro não tratado na API:', error);
+  return res.status(500).json({ message: 'Erro interno do servidor.' });
+});
