@@ -11,6 +11,8 @@ const Stripe = require('stripe');
 const { del, get, put } = require('@vercel/blob');
 const { createClient } = require('@supabase/supabase-js');
 const { z } = require('zod');
+const rateLimit = require('express-rate-limit');
+const jwt = require('jsonwebtoken');
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
@@ -20,7 +22,21 @@ const dataFile = path.join(__dirname, 'data', 'store.json');
 const uploadDir = path.join(__dirname, 'data', 'uploads');
 const siteUrl = (process.env.SITE_URL || 'http://localhost:4200').replace(/\/$/, '');
 const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-const adminToken = process.env.ADMIN_TOKEN || 'local-admin-token';
+const jwtSecret = process.env.JWT_SECRET ?? (() => {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET is required in production.');
+  }
+  console.warn('[warn] JWT_SECRET não definido — usando chave volátil. Os tokens expiram ao reiniciar o servidor.');
+  return crypto.randomBytes(32).toString('hex');
+})();
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiadas tentativas. Tente novamente em 15 minutos.' }
+});
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -303,16 +319,21 @@ app.post('/api/orders', async (req, res) => {
       return res.status(400).json({ message: 'Dados inválidos.', issues: error.issues });
     }
 
+    if (error instanceof StorageOperationError) {
+      return res.status(502).json({ message: error.message });
+    }
+
     return res.status(500).json({ message: 'Erro interno ao criar o pedido.' });
   }
 });
 
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', loginLimiter, (req, res) => {
   if (req.body?.password !== adminPassword) {
     return res.status(401).json({ message: 'Credenciais inválidas.' });
   }
 
-  return res.json({ token: adminToken });
+  const token = jwt.sign({ role: 'admin' }, jwtSecret, { expiresIn: '8h' });
+  return res.json({ token });
 });
 
 app.get('/api/orders', ensureAdmin, async (_req, res) => {
@@ -383,7 +404,7 @@ app.get(/^\/api\/assets\/blob\/(.+)$/, async (req, res, next) => {
       token: blobReadWriteToken
     });
 
-    if (!asset || asset.statusCode !== 200 || !asset.stream) {
+    if (asset?.statusCode !== 200 || !asset?.stream) {
       return res.status(404).json({ message: 'Asset não encontrado.' });
     }
 
@@ -449,6 +470,10 @@ app.post('/api/products', ensureAdmin, async (req, res) => {
       return res.status(400).json({ message: 'Produto inválido.', issues: error.issues });
     }
 
+    if (error instanceof StorageOperationError) {
+      return res.status(502).json({ message: error.message });
+    }
+
     return res.status(500).json({ message: 'Erro interno ao criar produto.' });
   }
 });
@@ -477,6 +502,10 @@ app.put('/api/products/:id', ensureAdmin, async (req, res) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'Produto inválido.', issues: error.issues });
+    }
+
+    if (error instanceof StorageOperationError) {
+      return res.status(502).json({ message: error.message });
     }
 
     return res.status(500).json({ message: 'Erro interno ao atualizar produto.' });
@@ -512,6 +541,10 @@ app.put('/api/content', ensureAdmin, async (req, res) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'Conteúdo inválido.', issues: error.issues });
+    }
+
+    if (error instanceof StorageOperationError) {
+      return res.status(502).json({ message: error.message });
     }
 
     return res.status(500).json({ message: 'Erro interno ao atualizar conteúdo.' });
@@ -627,6 +660,8 @@ async function createOrder(order) {
     if (!error && data) {
       return mapOrderRow(data);
     }
+
+    throw createStorageOperationError('Não foi possível gravar o pedido no Supabase.', error);
   }
 
   const store = await readLocalStore();
@@ -647,6 +682,8 @@ async function updateOrder(orderId, patch) {
     if (!error && data) {
       return mapOrderRow(data);
     }
+
+    throw createStorageOperationError('Não foi possível atualizar o pedido no Supabase.', error);
   }
 
   const store = await readLocalStore();
@@ -676,6 +713,8 @@ async function saveProduct(product) {
     if (!error && data) {
       return mapProductRow(data);
     }
+
+    throw createStorageOperationError('Não foi possível guardar o produto no Supabase.', error);
   }
 
   const store = await readLocalStore();
@@ -698,6 +737,8 @@ async function deleteProduct(productId) {
     if (!error && data) {
       return mapProductRow(data);
     }
+
+    throw createStorageOperationError('Não foi possível apagar o produto no Supabase.', error);
   }
 
   const store = await readLocalStore();
@@ -777,12 +818,45 @@ async function saveContent(content) {
     if (!error && data) {
       return mapContentRow(data);
     }
+
+    throw createStorageOperationError('Não foi possível guardar o conteúdo institucional no Supabase.', error);
   }
 
   const store = await readLocalStore();
   store.content = content;
   await writeLocalStore(store);
   return content;
+}
+
+class StorageOperationError extends Error {
+  constructor(message, cause) {
+    super(message);
+    this.name = 'StorageOperationError';
+    this.cause = cause;
+  }
+}
+
+function createStorageOperationError(message, cause) {
+  logStorageError(message, cause);
+  return new StorageOperationError(message, cause);
+}
+
+function logStorageError(message, cause) {
+  if (!cause) {
+    console.error(message);
+    return;
+  }
+
+  const details = typeof cause === 'object' && cause !== null
+    ? {
+        message: cause.message,
+        code: cause.code,
+        details: cause.details,
+        hint: cause.hint
+      }
+    : { cause: String(cause) };
+
+  console.error(message, details);
 }
 
 async function readLocalStore() {
@@ -927,12 +1001,14 @@ function isPrivateBlobStoreError(error) {
 
 function ensureAdmin(req, res, next) {
   const authorization = req.header('authorization') || '';
+  const token = authorization.startsWith('Bearer ') ? authorization.slice(7) : '';
 
-  if (authorization !== `Bearer ${adminToken}`) {
+  try {
+    jwt.verify(token, jwtSecret);
+    return next();
+  } catch {
     return res.status(401).json({ message: 'Acesso não autorizado.' });
   }
-
-  return next();
 }
 
 function mapProductRow(row) {
@@ -1099,6 +1175,10 @@ app.use((error, _req, res, next) => {
 
   if (error?.message === invalidImageTypeMessage) {
     return res.status(400).json({ message: invalidImageTypeMessage });
+  }
+
+  if (error instanceof StorageOperationError) {
+    return res.status(502).json({ message: error.message });
   }
 
   console.error('Erro não tratado na API:', error);

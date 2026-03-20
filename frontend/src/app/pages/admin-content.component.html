@@ -1,0 +1,53 @@
+<section class="editor card" *ngIf="content() as page">
+  <div class="panel-header">
+    <div>
+      <span class="eyebrow">Conteúdo</span>
+      <h2>Sobre e contacto</h2>
+    </div>
+  </div>
+
+  <div class="editor-grid">
+    <label>
+      Nome da marca
+      <input class="field" type="text" [(ngModel)]="page.brand.name" />
+    </label>
+    <label>
+      Tagline
+      <input class="field" type="text" [(ngModel)]="page.brand.tagline" />
+    </label>
+    <label class="full-span">
+      Headline
+      <input class="field" type="text" [(ngModel)]="page.brand.headline" />
+    </label>
+    <label class="full-span">
+      História
+      <textarea class="textarea" [(ngModel)]="page.about.story"></textarea>
+    </label>
+    <label class="full-span">
+      Missão
+      <textarea class="textarea" [(ngModel)]="page.about.mission"></textarea>
+    </label>
+    <label>
+      E-mail
+      <input class="field" type="email" [(ngModel)]="page.contact.email" />
+    </label>
+    <label>
+      Telefone
+      <input class="field" type="text" [(ngModel)]="page.contact.phone" />
+    </label>
+    <label>
+      WhatsApp
+      <input class="field" type="text" [(ngModel)]="page.contact.whatsapp" />
+    </label>
+    <label class="full-span">
+      Morada
+      <input class="field" type="text" [(ngModel)]="page.contact.address" />
+    </label>
+  </div>
+
+  <div class="editor-actions">
+    <button class="btn-secondary" type="button" (click)="saveContent()">Guardar conteúdo</button>
+  </div>
+
+  <p class="status success" *ngIf="feedback()">{{ feedback() }}</p>
+</section>

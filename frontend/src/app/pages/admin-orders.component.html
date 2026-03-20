@@ -1,0 +1,26 @@
+<section class="orders card">
+  <div class="panel-header">
+    <div>
+      <span class="eyebrow">Pedidos</span>
+      <h2>Últimas encomendas</h2>
+    </div>
+  </div>
+
+  @for (order of orders(); track order.id) {
+    <div class="order-row">
+      <div>
+        <strong>#{{ order.id }}</strong>
+        <span>{{ order.productName }}</span>
+      </div>
+      <div>
+        <span>{{ order.total | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</span>
+        <small>{{ order.createdAt | date: 'short' : '' : 'pt-PT' }}</small>
+      </div>
+      <span class="status" [class.success]="order.status === 'paid'" [class.warning]="order.status !== 'paid'">
+        {{ order.status }}
+      </span>
+    </div>
+  } @empty {
+    <p class="status warning">Nenhum pedido encontrado.</p>
+  }
+</section>
