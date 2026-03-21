@@ -12,7 +12,7 @@ const adminPassword = process.env.ADMIN_PASSWORD ?? (() => {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('ADMIN_PASSWORD is required in production.');
   }
-  console.warn('[warn] ADMIN_PASSWORD não definido — usando valor padrão inseguro. Defina a variável de ambiente em produção.');
+  require('./logger').warn('ADMIN_PASSWORD não definido — usando valor padrão inseguro. Defina a variável de ambiente em produção.');
   return 'admin123';
 })();
 
@@ -20,7 +20,7 @@ const jwtSecret = process.env.JWT_SECRET ?? (() => {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('JWT_SECRET is required in production.');
   }
-  console.warn('[warn] JWT_SECRET não definido — usando chave volátil. Os tokens expiram ao reiniciar o servidor.');
+  require('./logger').warn('JWT_SECRET não definido — usando chave volátil. Os tokens expiram ao reiniciar o servidor.');
   return crypto.randomBytes(32).toString('hex');
 })();
 

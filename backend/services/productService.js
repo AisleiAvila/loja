@@ -1,4 +1,5 @@
 const { supabase } = require('../config');
+const logger = require('../logger');
 const { createStorageOperationError } = require('../storage/errors');
 const { mapProductRow, serializeProduct } = require('../storage/mappers');
 const { readLocalStore, updateLocalStore } = require('../storage/localStore');
@@ -12,7 +13,7 @@ async function listProducts() {
     }
 
     if (error) {
-      console.warn('[supabase] Falha ao listar produtos:', error.message);
+      logger.warn('Falha ao listar produtos', { source: 'supabase', error: error.message });
     }
   }
 
@@ -29,7 +30,7 @@ async function getProductBySlug(slug) {
     }
 
     if (error) {
-      console.warn('[supabase] Falha ao obter produto por slug:', error.message);
+      logger.warn('Falha ao obter produto por slug', { source: 'supabase', error: error.message });
     }
   }
 
@@ -46,7 +47,7 @@ async function getProductById(productId) {
     }
 
     if (error) {
-      console.warn('[supabase] Falha ao obter produto por ID:', error.message);
+      logger.warn('Falha ao obter produto por ID', { source: 'supabase', error: error.message });
     }
   }
 

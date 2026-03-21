@@ -28,7 +28,7 @@ function errorHandler(error, _req, res, next) {
     return res.status(502).json({ message: error.message });
   }
 
-  console.error('Erro não tratado na API:', error);
+  require('../logger').error('Erro não tratado na API', { message: error.message, stack: error.stack });
   return res.status(500).json({ message: 'Erro interno do servidor.' });
 }
 

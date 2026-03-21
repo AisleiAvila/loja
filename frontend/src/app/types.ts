@@ -77,3 +77,10 @@ export interface CreateOrderResponse {
   redirectUrl: string;
   paymentProvider: 'manual' | 'stripe';
 }
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}

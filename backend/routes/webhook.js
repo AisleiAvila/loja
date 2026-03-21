@@ -1,5 +1,6 @@
 const express = require('express');
 const { stripe, stripeWebhookSecret } = require('../config');
+const logger = require('../logger');
 const { updateOrder } = require('../services/orderService');
 const { sendConfirmationEmail } = require('../services/emailService');
 
@@ -73,14 +74,13 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       }
     }
 
-    return res.json({ received: true });
-  } catch (error) {
-    console.error(`[ERROR] Webhook processing failed for event ${event?.id}:`, error.message);
-    return res.status(500).json({ message: 'Erro interno ao processar o webhook.' });
-  } finally {
-    // Mark event as processed after handling (even on error, to avoid retry loops)
     processedEvents.set(event.id, Date.now());
     pruneProcessedEvents();
+
+    return res.json({ received: true });
+  } catch (error) {
+    logger.error('Webhook processing failed', { eventId: event?.id, error: error.message });
+    return res.status(500).json({ message: 'Erro interno ao processar o webhook.' });
   }
 });
 

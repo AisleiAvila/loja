@@ -7,21 +7,14 @@ class StorageOperationError extends Error {
 }
 
 function logStorageError(message, cause) {
-  if (!cause) {
-    console.error(message);
-    return;
-  }
+  const logger = require('../logger');
+  const details = cause
+    ? (typeof cause === 'object' && cause !== null
+        ? { message: cause.message, code: cause.code, details: cause.details, hint: cause.hint }
+        : { cause: String(cause) })
+    : undefined;
 
-  const details = typeof cause === 'object' && cause !== null
-    ? {
-        message: cause.message,
-        code: cause.code,
-        details: cause.details,
-        hint: cause.hint
-      }
-    : { cause: String(cause) };
-
-  console.error(message, details);
+  logger.error(message, details);
 }
 
 function createStorageOperationError(message, cause) {

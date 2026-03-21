@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { AdminLoginResponse, CreateOrderResponse, Order, OrderFormValue, Product, SiteContent, UploadAssetResponse } from '../types';
+import { AdminLoginResponse, CreateOrderResponse, Order, OrderFormValue, PaginatedResponse, Product, SiteContent, UploadAssetResponse } from '../types';
 
 @Injectable({
   providedIn: 'root'
@@ -35,8 +35,10 @@ export class ApiService {
     return this.http.post<AdminLoginResponse>(`${this.baseUrl}/admin/login`, { password });
   }
 
-  getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/orders`);
+  getOrders(page = 1, limit = 20): Observable<PaginatedResponse<Order>> {
+    return this.http.get<PaginatedResponse<Order>>(`${this.baseUrl}/orders`, {
+      params: { page: String(page), limit: String(limit) }
+    });
   }
 
   createProduct(payload: Omit<Product, 'id'> & { id?: string }): Observable<Product> {

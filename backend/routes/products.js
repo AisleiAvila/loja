@@ -75,7 +75,8 @@ router.put('/:id', ensureAdmin, adminLimiter, logAdminAction, validateProductId,
 
     const updatedProduct = productSchema.parse({
       ...existingProduct,
-      ...req.body
+      ...req.body,
+      id: req.params.id
     });
 
     const conflictingProduct = await getProductBySlug(updatedProduct.slug);

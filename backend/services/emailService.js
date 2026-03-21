@@ -14,7 +14,7 @@ const transporter = process.env.SMTP_HOST && process.env.SMTP_USER && process.en
 
 async function sendConfirmationEmail(order, stage) {
   if (!transporter) {
-    console.warn('[email] SMTP not configured — skipping email for order', order.id);
+    require('../logger').warn('SMTP not configured — skipping email', { orderId: order.id });
     return { sent: false, reason: 'smtp_not_configured' };
   }
 
@@ -42,7 +42,7 @@ async function sendConfirmationEmail(order, stage) {
 
     return { sent: true };
   } catch (error) {
-    console.error('[email] Failed to send email for order', order.id, error.message);
+    require('../logger').error('Failed to send email', { orderId: order.id, error: error.message });
     return { sent: false, reason: 'send_failed' };
   }
 }

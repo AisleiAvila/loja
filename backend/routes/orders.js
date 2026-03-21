@@ -108,10 +108,13 @@ router.post('/', orderLimiter, async (req, res, next) => {
   }
 });
 
-router.get('/', ensureAdmin, async (_req, res, next) => {
+router.get('/', ensureAdmin, async (req, res, next) => {
   try {
-    const orders = await listOrders();
-    return res.json(orders);
+    const page = Math.max(1, Math.floor(Number(req.query.page)) || 1);
+    const limit = Math.min(100, Math.max(1, Math.floor(Number(req.query.limit)) || 20));
+
+    const result = await listOrders({ page, limit });
+    return res.json(result);
   } catch (error) {
     return next(error);
   }

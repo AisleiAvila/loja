@@ -1,23 +1,39 @@
 const { supabase } = require('../config');
+const logger = require('../logger');
 const { createStorageOperationError } = require('../storage/errors');
 const { mapOrderRow, serializeOrder, serializeOrderPatch } = require('../storage/mappers');
 const { readLocalStore, updateLocalStore } = require('../storage/localStore');
 
-async function listOrders() {
+async function listOrders({ page = 1, limit = 20 } = {}) {
+  const offset = (page - 1) * limit;
+
   if (supabase) {
-    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    const { count } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true });
+
+    const total = count ?? 0;
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (!error && data) {
-      return data.map(mapOrderRow);
+      return { data: data.map(mapOrderRow), total, page, limit };
     }
 
     if (error) {
-      console.warn('[supabase] Falha ao listar pedidos:', error.message);
+      logger.warn('Falha ao listar pedidos', { source: 'supabase', error: error.message });
     }
   }
 
   const store = await readLocalStore();
-  return store.orders;
+  const allOrders = store.orders;
+  const paginatedOrders = allOrders.slice(offset, offset + limit);
+
+  return { data: paginatedOrders, total: allOrders.length, page, limit };
 }
 
 async function getOrderById(orderId) {
@@ -29,7 +45,7 @@ async function getOrderById(orderId) {
     }
 
     if (error) {
-      console.warn('[supabase] Falha ao obter pedido por ID:', error.message);
+      logger.warn('Falha ao obter pedido por ID', { source: 'supabase', error: error.message });
     }
   }
 
@@ -49,7 +65,7 @@ async function hasOrdersForProduct(productId) {
     }
 
     if (error) {
-      console.warn('[supabase] Falha ao verificar pedidos do produto:', error.message);
+      logger.warn('Falha ao verificar pedidos do produto', { source: 'supabase', error: error.message });
     }
   }
 

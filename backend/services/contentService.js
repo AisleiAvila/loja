@@ -12,7 +12,7 @@ async function getContent() {
     }
 
     if (error) {
-      console.warn('[supabase] Falha ao ler conteúdo:', error.message);
+      require('../logger').warn('Falha ao ler conteúdo', { source: 'supabase', error: error.message });
     }
   }
 

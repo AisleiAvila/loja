@@ -23,4 +23,12 @@
   } @empty {
     <p class="status warning">Nenhum pedido encontrado.</p>
   }
+
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button [disabled]="currentPage() <= 1" (click)="goToPage('previous')">Anterior</button>
+      <span>Página {{ currentPage() }} de {{ totalPages() }}</span>
+      <button [disabled]="currentPage() >= totalPages()" (click)="goToPage('next')">Seguinte</button>
+    </div>
+  }
 </section>

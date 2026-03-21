@@ -16,6 +16,8 @@ const uploadsRouter = require('./routes/uploads');
 const adminRouter = require('./routes/admin');
 const webhookRouter = require('./routes/webhook');
 
+const logger = require('./logger');
+
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
@@ -43,7 +45,7 @@ app.use(errorHandler);
 
 if (require.main === module) {
   app.listen(port, () => {
-    console.log(`API disponível em http://localhost:${port}`);
+    logger.info(`API disponível em http://localhost:${port}`);
   });
 }
 

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { jwtSecret } = require('../config');
+const logger = require('../logger');
 
 const publicReadLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -36,7 +37,7 @@ const adminLimiter = rateLimit({
 
 function logAdminAction(req, _res, next) {
   if (req.method !== 'GET') {
-    console.log(`[admin] ${new Date().toISOString()} ${req.method} ${req.baseUrl}${req.path}`);
+    logger.info('Admin action', { method: req.method, path: `${req.baseUrl}${req.path}` });
   }
   return next();
 }
