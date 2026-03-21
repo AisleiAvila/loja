@@ -18,11 +18,9 @@ export class ContactPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly content = signal<SiteContent | null>(null);
-  protected readonly form = {
-    name: '',
-    email: '',
-    message: ''
-  };
+  protected readonly formName = signal('');
+  protected readonly formEmail = signal('');
+  protected readonly formMessage = signal('');
   protected readonly submitted = signal(false);
 
   ngOnInit(): void {
@@ -38,8 +36,8 @@ export class ContactPageComponent implements OnInit {
       return;
     }
 
-    const subject = encodeURIComponent(`Pedido de contacto de ${this.form.name}`);
-    const body = encodeURIComponent(`${this.form.message}\n\nEmail: ${this.form.email}`);
+    const subject = encodeURIComponent(`Pedido de contacto de ${this.formName()}`);
+    const body = encodeURIComponent(`${this.formMessage()}\n\nEmail: ${this.formEmail()}`);
 
     globalThis.location.href = `mailto:${page.contact.email}?subject=${subject}&body=${body}`;
     this.submitted.set(true);

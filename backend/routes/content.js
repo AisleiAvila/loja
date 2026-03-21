@@ -7,9 +7,13 @@ const { getContent, saveContent } = require('../services/contentService');
 
 const router = express.Router();
 
-router.get('/', async (_req, res) => {
-  const content = await getContent();
-  res.json(content);
+router.get('/', async (_req, res, next) => {
+  try {
+    const content = await getContent();
+    return res.json(content);
+  } catch (error) {
+    return next(error);
+  }
 });
 
 router.put('/', ensureAdmin, async (req, res) => {

@@ -9,19 +9,27 @@ const { hasOrdersForProduct } = require('../services/orderService');
 
 const router = express.Router();
 
-router.get('/', async (_req, res) => {
-  const products = await listProducts();
-  res.json(products);
+router.get('/', async (_req, res, next) => {
+  try {
+    const products = await listProducts();
+    return res.json(products);
+  } catch (error) {
+    return next(error);
+  }
 });
 
-router.get('/:slug', async (req, res) => {
-  const product = await getProductBySlug(req.params.slug);
+router.get('/:slug', async (req, res, next) => {
+  try {
+    const product = await getProductBySlug(req.params.slug);
 
-  if (!product) {
-    return res.status(404).json({ message: 'Produto não encontrado.' });
+    if (!product) {
+      return res.status(404).json({ message: 'Produto não encontrado.' });
+    }
+
+    return res.json(product);
+  } catch (error) {
+    return next(error);
   }
-
-  return res.json(product);
 });
 
 router.post('/', ensureAdmin, async (req, res) => {

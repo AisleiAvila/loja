@@ -58,7 +58,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     }
 
     return res.json({ received: true });
-  } catch {
+  } catch (error) {
+    console.error(`[ERROR] Webhook processing failed for event ${event?.id}:`, error.message);
     return res.status(500).json({ message: 'Erro interno ao processar o webhook.' });
   }
 });

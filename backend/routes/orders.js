@@ -5,26 +5,30 @@ const { stripe, siteUrl, stripePaymentMethodTypes } = require('../config');
 const { orderSchema } = require('../schemas');
 const { StorageOperationError } = require('../storage/errors');
 const { buildAbsoluteAssetUrl } = require('../storage/assets');
-const { ensureAdmin } = require('../middleware/auth');
+const { ensureAdmin, orderLimiter } = require('../middleware/auth');
 const { listOrders, getOrderById, createOrder, updateOrder } = require('../services/orderService');
 const { getProductById } = require('../services/productService');
 const { sendConfirmationEmail } = require('../services/emailService');
 
 const router = express.Router();
 
-router.get('/:id/summary', async (req, res) => {
-  const order = await getOrderById(req.params.id);
+router.get('/:id/summary', async (req, res, next) => {
+  try {
+    const order = await getOrderById(req.params.id);
 
-  if (!order) {
-    return res.status(404).json({ message: 'Pedido não encontrado.' });
+    if (!order) {
+      return res.status(404).json({ message: 'Pedido não encontrado.' });
+    }
+
+    // Return only non-PII fields to avoid exposing customer data to anyone with an order ID
+    const { id, productId, productName, quantity, total, status, createdAt, paymentMethod, paymentProvider, paymentReference, paymentUrl } = order;
+    return res.json({ id, productId, productName, quantity, total, status, createdAt, paymentMethod, paymentProvider, paymentReference, paymentUrl });
+  } catch (error) {
+    return next(error);
   }
-
-  // Return only non-PII fields to avoid exposing customer data to anyone with an order ID
-  const { id, productId, productName, quantity, total, status, createdAt, paymentMethod, paymentProvider, paymentReference, paymentUrl } = order;
-  return res.json({ id, productId, productName, quantity, total, status, createdAt, paymentMethod, paymentProvider, paymentReference, paymentUrl });
 });
 
-router.post('/', async (req, res) => {
+router.post('/', orderLimiter, async (req, res) => {
   try {
     const payload = orderSchema.parse(req.body);
     const product = await getProductById(payload.productId);
@@ -107,9 +111,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/', ensureAdmin, async (_req, res) => {
-  const orders = await listOrders();
-  res.json(orders);
+router.get('/', ensureAdmin, async (_req, res, next) => {
+  try {
+    const orders = await listOrders();
+    return res.json(orders);
+  } catch (error) {
+    return next(error);
+  }
 });
 
 module.exports = router;

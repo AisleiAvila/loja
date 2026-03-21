@@ -16,17 +16,17 @@
   <form class="contact-form card" (ngSubmit)="send()">
     <label>
       Nome
-      <input class="field" type="text" name="name" [(ngModel)]="form.name" required />
+      <input class="field" type="text" name="name" [(ngModel)]="formName" required />
     </label>
 
     <label>
       E-mail
-      <input class="field" type="email" name="email" [(ngModel)]="form.email" required />
+      <input class="field" type="email" name="email" [(ngModel)]="formEmail" required />
     </label>
 
     <label>
       Mensagem
-      <textarea class="textarea" name="message" [(ngModel)]="form.message" required></textarea>
+      <textarea class="textarea" name="message" [(ngModel)]="formMessage" required></textarea>
     </label>
 
     <button class="btn-secondary" type="submit">Enviar</button>
