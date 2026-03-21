@@ -5,14 +5,14 @@ const { stripe, siteUrl, stripePaymentMethodTypes } = require('../config');
 const { orderSchema } = require('../schemas');
 const { StorageOperationError } = require('../storage/errors');
 const { buildAbsoluteAssetUrl } = require('../storage/assets');
-const { ensureAdmin, orderLimiter } = require('../middleware/auth');
+const { ensureAdmin, orderLimiter, publicReadLimiter } = require('../middleware/auth');
 const { listOrders, getOrderById, createOrder, updateOrder } = require('../services/orderService');
 const { getProductById } = require('../services/productService');
 const { sendConfirmationEmail } = require('../services/emailService');
 
 const router = express.Router();
 
-router.get('/:id/summary', async (req, res, next) => {
+router.get('/:id/summary', publicReadLimiter, async (req, res, next) => {
   try {
     const orderId = req.params.id;
 
@@ -45,7 +45,7 @@ router.post('/', orderLimiter, async (req, res) => {
     }
 
     const createdOrder = await createOrder({
-      id: crypto.randomUUID().split('-')[0].toUpperCase(),
+      id: crypto.randomBytes(4).toString('hex').toUpperCase(),
       ...payload,
       productName: product.name,
       total: Number((product.price * payload.quantity).toFixed(2)),

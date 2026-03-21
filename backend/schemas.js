@@ -9,6 +9,10 @@ const assetUrlSchema = z
 
 const optionalAssetSchema = z.union([assetUrlSchema, z.literal('')]).optional();
 
+const loginSchema = z.object({
+  password: z.string().min(1).max(200)
+});
+
 const orderSchema = z.object({
   productId: z.string().min(1).max(100),
   quantity: z.coerce.number().int().min(1).max(9999),
@@ -67,6 +71,7 @@ const contentSchema = z.object({
 module.exports = {
   assetUrlSchema,
   optionalAssetSchema,
+  loginSchema,
   orderSchema,
   orderStatusSchema,
   productSchema,
