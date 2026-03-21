@@ -46,7 +46,7 @@ export class ThankYouPageComponent implements OnInit {
   }
 
   private loadLocalOrder(): void {
-    const navigationOrder = history.state?.order as Order | undefined;
+    const navigationOrder = this.parseOrder(history.state?.order);
 
     if (navigationOrder) {
       this.order.set(navigationOrder);
@@ -57,9 +57,34 @@ export class ThankYouPageComponent implements OnInit {
     const persistedOrder = localStorage.getItem('last-order');
 
     if (persistedOrder) {
-      this.order.set(JSON.parse(persistedOrder) as Order);
+      const parsed = this.parseOrder(this.safeJsonParse(persistedOrder));
+      if (parsed) {
+        this.order.set(parsed);
+      } else {
+        localStorage.removeItem('last-order');
+      }
     }
 
     this.loading.set(false);
+  }
+
+  private safeJsonParse(value: string): unknown {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+
+  private parseOrder(data: unknown): Order | null {
+    if (
+      typeof data === 'object' && data !== null &&
+      'id' in data && typeof (data as Record<string, unknown>)['id'] === 'string' &&
+      'productName' in data && typeof (data as Record<string, unknown>)['productName'] === 'string' &&
+      'total' in data && typeof (data as Record<string, unknown>)['total'] === 'number'
+    ) {
+      return data as Order;
+    }
+    return null;
   }
 }

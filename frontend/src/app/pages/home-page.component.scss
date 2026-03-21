@@ -17,7 +17,7 @@
 }
 
 .hero-copy h1 {
-  font-size: clamp(2.6rem, 7vw, 5.6rem);
+  font-size: var(--text-4xl);
   max-width: 10ch;
 }
 
@@ -46,7 +46,7 @@
   display: block;
   margin-bottom: 0.35rem;
   font-family: var(--font-display);
-  font-size: 1.4rem;
+  font-size: var(--text-lg);
 }
 
 .hero-media {
@@ -75,7 +75,7 @@
 .hero-badge span {
   display: block;
   color: rgba(255, 255, 255, 0.72);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .products {
@@ -90,7 +90,7 @@
 
 .section-heading h2 {
   max-width: 14ch;
-  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-size: var(--text-xl);
 }
 
 .product-grid {
@@ -131,7 +131,7 @@
 }
 
 .product-copy h3 {
-  font-size: 1.45rem;
+  font-size: var(--text-lg);
 }
 
 .product-meta {

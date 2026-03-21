@@ -3,8 +3,8 @@
     <a class="brand" routerLink="/" (click)="closeMobileMenu()">
       <span class="brand-mark">LA</span>
       <span class="brand-text">
-        <strong>{{ siteContent()?.brand?.name || 'Luz do Atlântico' }}</strong>
-        <small>{{ siteContent()?.brand?.tagline || 'Bem-estar com estética contemporânea' }}</small>
+        <strong>{{ siteContent()?.brand?.name ?? 'Luz do Atlântico' }}</strong>
+        <small>{{ siteContent()?.brand?.tagline ?? 'Bem-estar com estética contemporânea' }}</small>
       </span>
     </a>
 
@@ -29,12 +29,12 @@
 
   <footer class="site-footer">
     <div>
-      <strong>{{ siteContent()?.brand?.name || 'Luz do Atlântico' }}</strong>
-      <p>{{ siteContent()?.brand?.headline || 'Pequena coleção de produtos premium para rotinas simples e eficazes.' }}</p>
+      <strong>{{ siteContent()?.brand?.name ?? 'Luz do Atlântico' }}</strong>
+      <p>{{ siteContent()?.brand?.headline ?? 'Pequena coleção de produtos premium para rotinas simples e eficazes.' }}</p>
     </div>
     <div>
-      <span>{{ siteContent()?.contact?.email || 'ola@luzdoatlantico.pt' }}</span>
-      <span>{{ siteContent()?.contact?.phone || '+351 910 000 000' }}</span>
+      <span>{{ siteContent()?.contact?.email ?? 'ola@luzdoatlantico.pt' }}</span>
+      <span>{{ siteContent()?.contact?.phone ?? '+351 910 000 000' }}</span>
     </div>
   </footer>
 

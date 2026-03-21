@@ -31,9 +31,11 @@ app.use('/api/payments/stripe', webhookRouter);
 
 app.use(express.json({ limit: '100kb' }));
 
-app.use('/api/products', productsRouter);
+const { publicReadLimiter } = require('./middleware/auth');
+
+app.use('/api/products', publicReadLimiter, productsRouter);
 app.use('/api/orders', ordersRouter);
-app.use('/api/content', contentRouter);
+app.use('/api/content', publicReadLimiter, contentRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api', uploadsRouter);
 

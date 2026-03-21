@@ -18,7 +18,7 @@
 }
 
 .section-title h1 {
-  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-size: var(--text-xl);
 }
 
 .form-grid {
@@ -86,6 +86,17 @@
   .checkout {
     grid-template-columns: 1fr;
   }
+}
+
+.field.invalid,
+.textarea.invalid {
+  border-color: rgba(120, 34, 34, 0.45);
+  outline: 2px solid rgba(120, 34, 34, 0.12);
+}
+
+.field-error {
+  font-size: var(--text-xs);
+  color: #782222;
 }
 
 @media (max-width: 640px) {

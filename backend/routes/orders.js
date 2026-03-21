@@ -14,15 +14,22 @@ const router = express.Router();
 
 router.get('/:id/summary', async (req, res, next) => {
   try {
-    const order = await getOrderById(req.params.id);
+    const orderId = req.params.id;
+
+    // Reject IDs that don't match the expected format to avoid enumeration probing
+    if (!/^[A-Z0-9]{8}$/.test(orderId)) {
+      return res.status(404).json({ message: 'Pedido não encontrado.' });
+    }
+
+    const order = await getOrderById(orderId);
 
     if (!order) {
       return res.status(404).json({ message: 'Pedido não encontrado.' });
     }
 
-    // Return only non-PII fields to avoid exposing customer data to anyone with an order ID
-    const { id, productId, productName, quantity, total, status, createdAt, paymentMethod, paymentProvider, paymentReference, paymentUrl } = order;
-    return res.json({ id, productId, productName, quantity, total, status, createdAt, paymentMethod, paymentProvider, paymentReference, paymentUrl });
+    // Return only the minimal fields needed by the thank-you page — no PII, no payment URLs/references
+    const { id, productName, quantity, total, status, createdAt, paymentMethod } = order;
+    return res.json({ id, productName, quantity, total, status, createdAt, paymentMethod });
   } catch (error) {
     return next(error);
   }

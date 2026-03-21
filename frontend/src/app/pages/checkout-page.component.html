@@ -22,32 +22,50 @@
 
       <label>
         Nome completo
-        <input class="field" type="text" formControlName="customerName" />
+        <input class="field" [class.invalid]="checkoutForm.controls.customerName.touched && checkoutForm.controls.customerName.invalid" type="text" formControlName="customerName" />
+        @if (checkoutForm.controls.customerName.touched && checkoutForm.controls.customerName.invalid) {
+          <small class="field-error">Nome é obrigatório.</small>
+        }
       </label>
 
       <label>
         E-mail
-        <input class="field" type="email" formControlName="email" />
+        <input class="field" [class.invalid]="checkoutForm.controls.email.touched && checkoutForm.controls.email.invalid" type="email" formControlName="email" />
+        @if (checkoutForm.controls.email.touched && checkoutForm.controls.email.invalid) {
+          <small class="field-error">E-mail válido é obrigatório.</small>
+        }
       </label>
 
       <label>
         Telefone
-        <input class="field" type="text" formControlName="phone" />
+        <input class="field" [class.invalid]="checkoutForm.controls.phone.touched && checkoutForm.controls.phone.invalid" type="text" formControlName="phone" />
+        @if (checkoutForm.controls.phone.touched && checkoutForm.controls.phone.invalid) {
+          <small class="field-error">Telefone é obrigatório.</small>
+        }
       </label>
 
       <label>
         Código postal
-        <input class="field" type="text" formControlName="postalCode" />
+        <input class="field" [class.invalid]="checkoutForm.controls.postalCode.touched && checkoutForm.controls.postalCode.invalid" type="text" formControlName="postalCode" />
+        @if (checkoutForm.controls.postalCode.touched && checkoutForm.controls.postalCode.invalid) {
+          <small class="field-error">Código postal é obrigatório.</small>
+        }
       </label>
 
       <label class="full-span">
         Morada
-        <input class="field" type="text" formControlName="address" />
+        <input class="field" [class.invalid]="checkoutForm.controls.address.touched && checkoutForm.controls.address.invalid" type="text" formControlName="address" />
+        @if (checkoutForm.controls.address.touched && checkoutForm.controls.address.invalid) {
+          <small class="field-error">Morada é obrigatória.</small>
+        }
       </label>
 
       <label>
         Cidade
-        <input class="field" type="text" formControlName="city" />
+        <input class="field" [class.invalid]="checkoutForm.controls.city.touched && checkoutForm.controls.city.invalid" type="text" formControlName="city" />
+        @if (checkoutForm.controls.city.touched && checkoutForm.controls.city.invalid) {
+          <small class="field-error">Cidade é obrigatória.</small>
+        }
       </label>
 
       <label class="full-span">

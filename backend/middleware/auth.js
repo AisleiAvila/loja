@@ -2,6 +2,14 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { jwtSecret } = require('../config');
 
+const publicReadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados pedidos. Tente novamente em 1 minuto.' }
+});
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -35,4 +43,4 @@ function ensureAdmin(req, res, next) {
   }
 }
 
-module.exports = { ensureAdmin, loginLimiter, orderLimiter };
+module.exports = { ensureAdmin, loginLimiter, orderLimiter, publicReadLimiter };
