@@ -39,7 +39,7 @@ export class AdminImageGalleryComponent {
     this.isUploading.set(true);
     this.feedback.set('');
 
-    this.apiService.uploadProductImage(token, file).pipe(
+    this.apiService.uploadProductImage(file).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: ({ url }) => {
@@ -76,7 +76,7 @@ export class AdminImageGalleryComponent {
     this.isUploading.set(true);
     this.feedback.set('');
 
-    this.apiService.deleteUploadedAsset(token, imageToRemove).pipe(
+    this.apiService.deleteUploadedAsset(imageToRemove).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => finalizeRemoval(),

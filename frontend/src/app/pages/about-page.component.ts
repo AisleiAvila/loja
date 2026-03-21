@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { ApiService } from '../services/api.service';
+import { ContentStoreService } from '../services/content-store.service';
 import { SiteContent } from '../types';
 
 @Component({
@@ -12,14 +12,14 @@ import { SiteContent } from '../types';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AboutPageComponent implements OnInit {
-  private readonly apiService = inject(ApiService);
+  private readonly contentStore = inject(ContentStoreService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly content = signal<SiteContent | null>(null);
   protected readonly loadError = signal('');
 
   ngOnInit(): void {
-    this.apiService.getContent().pipe(
+    this.contentStore.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (content) => this.content.set(content),

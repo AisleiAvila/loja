@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
-import { ApiService } from '../services/api.service';
+import { ContentStoreService } from '../services/content-store.service';
 import { SiteContent } from '../types';
 
 @Component({
@@ -15,7 +15,7 @@ import { SiteContent } from '../types';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactPageComponent implements OnInit {
-  private readonly apiService = inject(ApiService);
+  private readonly contentStore = inject(ContentStoreService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
@@ -26,7 +26,7 @@ export class ContactPageComponent implements OnInit {
   protected readonly submitted = signal(false);
 
   ngOnInit(): void {
-    this.apiService.getContent().pipe(
+    this.contentStore.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((content) => this.content.set(content));
   }

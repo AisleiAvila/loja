@@ -10,6 +10,10 @@ async function listProducts() {
     if (!error && data?.length) {
       return data.map(mapProductRow);
     }
+
+    if (error) {
+      console.warn('[supabase] Falha ao listar produtos:', error.message);
+    }
   }
 
   const store = await readLocalStore();
@@ -23,6 +27,10 @@ async function getProductBySlug(slug) {
     if (!error && data) {
       return mapProductRow(data);
     }
+
+    if (error) {
+      console.warn('[supabase] Falha ao obter produto por slug:', error.message);
+    }
   }
 
   const store = await readLocalStore();
@@ -35,6 +43,10 @@ async function getProductById(productId) {
 
     if (!error && data) {
       return mapProductRow(data);
+    }
+
+    if (error) {
+      console.warn('[supabase] Falha ao obter produto por ID:', error.message);
     }
   }
 

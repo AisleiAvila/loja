@@ -10,6 +10,10 @@ async function getContent() {
     if (!error && data) {
       return mapContentRow(data);
     }
+
+    if (error) {
+      console.warn('[supabase] Falha ao ler conteúdo:', error.message);
+    }
   }
 
   const store = await readLocalStore();

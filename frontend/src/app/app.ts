@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { ApiService } from './services/api.service';
+import { ContentStoreService } from './services/content-store.service';
 import { SiteContent } from './types';
 
 @Component({
@@ -13,14 +13,14 @@ import { SiteContent } from './types';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class App implements OnInit {
-  private readonly apiService = inject(ApiService);
+  private readonly contentStore = inject(ContentStoreService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly mobileMenuOpen = signal(false);
   protected readonly siteContent = signal<SiteContent | null>(null);
 
   ngOnInit(): void {
-    this.apiService.getContent().pipe(
+    this.contentStore.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (content) => this.siteContent.set(content),

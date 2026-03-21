@@ -8,7 +8,13 @@ const dataFile = path.join(__dirname, 'data', 'store.json');
 const uploadDir = path.join(__dirname, 'data', 'uploads');
 
 const siteUrl = (process.env.SITE_URL || 'http://localhost:4200').replace(/\/$/, '');
-const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+const adminPassword = process.env.ADMIN_PASSWORD ?? (() => {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('ADMIN_PASSWORD is required in production.');
+  }
+  console.warn('[warn] ADMIN_PASSWORD não definido — usando valor padrão inseguro. Defina a variável de ambiente em produção.');
+  return 'admin123';
+})();
 
 const jwtSecret = process.env.JWT_SECRET ?? (() => {
   if (process.env.NODE_ENV === 'production') {

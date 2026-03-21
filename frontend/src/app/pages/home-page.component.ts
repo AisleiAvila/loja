@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
 import { ApiService } from '../services/api.service';
+import { ContentStoreService } from '../services/content-store.service';
 import { Product, SiteContent } from '../types';
 
 @Component({
@@ -16,6 +17,7 @@ import { Product, SiteContent } from '../types';
 })
 export class HomePageComponent implements OnInit {
   private readonly apiService = inject(ApiService);
+  private readonly contentStore = inject(ContentStoreService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly products = signal<Product[]>([]);
@@ -34,7 +36,7 @@ export class HomePageComponent implements OnInit {
       }
     });
 
-    this.apiService.getContent().pipe(
+    this.contentStore.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (content) => {

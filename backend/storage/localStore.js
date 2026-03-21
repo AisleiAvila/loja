@@ -16,7 +16,9 @@ async function readLocalStore() {
 }
 
 async function writeLocalStore(store) {
-  await fs.writeFile(dataFile, JSON.stringify(store, null, 2));
+  const tmpFile = dataFile + '.tmp';
+  await fs.writeFile(tmpFile, JSON.stringify(store, null, 2));
+  await fs.rename(tmpFile, dataFile);
 }
 
 async function updateLocalStore(updater) {

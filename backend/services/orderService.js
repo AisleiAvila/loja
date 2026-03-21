@@ -10,6 +10,10 @@ async function listOrders() {
     if (!error && data) {
       return data.map(mapOrderRow);
     }
+
+    if (error) {
+      console.warn('[supabase] Falha ao listar pedidos:', error.message);
+    }
   }
 
   const store = await readLocalStore();
@@ -22,6 +26,10 @@ async function getOrderById(orderId) {
 
     if (!error && data) {
       return mapOrderRow(data);
+    }
+
+    if (error) {
+      console.warn('[supabase] Falha ao obter pedido por ID:', error.message);
     }
   }
 
@@ -38,6 +46,10 @@ async function hasOrdersForProduct(productId) {
 
     if (!error) {
       return Boolean(count);
+    }
+
+    if (error) {
+      console.warn('[supabase] Falha ao verificar pedidos do produto:', error.message);
     }
   }
 

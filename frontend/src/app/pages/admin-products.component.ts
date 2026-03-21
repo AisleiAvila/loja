@@ -105,8 +105,8 @@ export class AdminProductsComponent implements OnInit {
     }
 
     const request = this.isCreatingProduct()
-      ? this.apiService.createProduct(token, product)
-      : this.apiService.updateProduct(token, product.id, product);
+      ? this.apiService.createProduct(product)
+      : this.apiService.updateProduct(product.id, product);
     request.subscribe({
       next: (savedProduct) => {
         if (this.isCreatingProduct()) {
@@ -140,7 +140,7 @@ export class AdminProductsComponent implements OnInit {
       return;
     }
 
-    this.apiService.deleteProduct(token, product.id).subscribe({
+    this.apiService.deleteProduct(product.id).subscribe({
       next: () => {
         const remainingProducts = this.products().filter((item) => item.id !== product.id);
         this.products.set(remainingProducts);

@@ -5,7 +5,7 @@ const { Readable } = require('node:stream');
 const express = require('express');
 const { put, get } = require('@vercel/blob');
 const { blobReadWriteToken, uploadDir, supabase, stripe, upload } = require('../config');
-const { ensureAdmin, adminLimiter, logAdminAction } = require('../middleware/auth');
+const { ensureAdmin, adminLimiter, logAdminAction, publicReadLimiter } = require('../middleware/auth');
 const {
   isPrivateBlobStoreError,
   decodeManagedBlobPathname,
@@ -73,7 +73,7 @@ router.post('/uploads/image', ensureAdmin, adminLimiter, logAdminAction, upload.
   }
 });
 
-router.get(/^\/assets\/blob\/(.+)$/, async (req, res, next) => {
+router.get(/^\/assets\/blob\/(.+)$/, publicReadLimiter, async (req, res, next) => {
   try {
     if (!blobReadWriteToken) {
       return res.status(404).json({ message: 'Storage de imagens não configurado.' });
@@ -103,7 +103,7 @@ router.get(/^\/assets\/blob\/(.+)$/, async (req, res, next) => {
   }
 });
 
-router.delete('/uploads/image', ensureAdmin, async (req, res, next) => {
+router.delete('/uploads/image', ensureAdmin, adminLimiter, logAdminAction, async (req, res, next) => {
   try {
     const assetUrl = typeof req.body?.url === 'string' ? req.body.url : '';
 

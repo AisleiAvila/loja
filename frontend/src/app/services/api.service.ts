@@ -35,49 +35,36 @@ export class ApiService {
     return this.http.post<AdminLoginResponse>(`${this.baseUrl}/admin/login`, { password });
   }
 
-  getOrders(token: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/orders`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  getOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.baseUrl}/orders`);
   }
 
-  createProduct(token: string, payload: Omit<Product, 'id'> & { id?: string }): Observable<Product> {
-    return this.http.post<Product>(`${this.baseUrl}/products`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  createProduct(payload: Omit<Product, 'id'> & { id?: string }): Observable<Product> {
+    return this.http.post<Product>(`${this.baseUrl}/products`, payload);
   }
 
-  uploadProductImage(token: string, file: File): Observable<UploadAssetResponse> {
+  uploadProductImage(file: File): Observable<UploadAssetResponse> {
     const payload = new FormData();
     payload.append('image', file);
 
-    return this.http.post<UploadAssetResponse>(`${this.baseUrl}/uploads/image`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    return this.http.post<UploadAssetResponse>(`${this.baseUrl}/uploads/image`, payload);
   }
 
-  deleteUploadedAsset(token: string, url: string): Observable<void> {
+  deleteUploadedAsset(url: string): Observable<void> {
     return this.http.request<void>('delete', `${this.baseUrl}/uploads/image`, {
-      headers: { Authorization: `Bearer ${token}` },
       body: { url }
     });
   }
 
-  deleteProduct(token: string, productId: string): Observable<Product> {
-    return this.http.delete<Product>(`${this.baseUrl}/products/${productId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  deleteProduct(productId: string): Observable<Product> {
+    return this.http.delete<Product>(`${this.baseUrl}/products/${productId}`);
   }
 
-  updateProduct(token: string, productId: string, payload: Partial<Product>): Observable<Product> {
-    return this.http.put<Product>(`${this.baseUrl}/products/${productId}`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  updateProduct(productId: string, payload: Partial<Product>): Observable<Product> {
+    return this.http.put<Product>(`${this.baseUrl}/products/${productId}`, payload);
   }
 
-  updateContent(token: string, payload: SiteContent): Observable<SiteContent> {
-    return this.http.put<SiteContent>(`${this.baseUrl}/content`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  updateContent(payload: SiteContent): Observable<SiteContent> {
+    return this.http.put<SiteContent>(`${this.baseUrl}/content`, payload);
   }
 }

@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../services/api.service';
+import { ContentStoreService } from '../services/content-store.service';
 import { SiteContent } from '../types';
 
 @Component({
@@ -15,19 +16,20 @@ import { SiteContent } from '../types';
 })
 export class AdminContentComponent implements OnInit {
   private readonly apiService = inject(ApiService);
+  private readonly contentStore = inject(ContentStoreService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly token = input.required<string>();
   readonly unauthorized = output<void>();
 
-  protected readonly content = signal<SiteContent | null>(null);
+  protected readonly editableContent = signal<SiteContent | null>(null);
   protected readonly feedback = signal('');
 
   ngOnInit(): void {
-    this.apiService.getContent().pipe(
+    this.contentStore.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (content) => this.content.set(content),
+      next: (content) => this.editableContent.set(structuredClone(content)),
       error: (err) => {
         if (err.status === 401) this.unauthorized.emit();
       }
@@ -35,16 +37,16 @@ export class AdminContentComponent implements OnInit {
   }
 
   protected saveContent(): void {
-    const token = this.token();
-    const content = this.content();
+    const content = this.editableContent();
 
-    if (!token || !content) {
+    if (!this.token() || !content) {
       return;
     }
 
-    this.apiService.updateContent(token, content).subscribe({
+    this.apiService.updateContent(content).subscribe({
       next: (updated) => {
-        this.content.set(updated);
+        this.editableContent.set(structuredClone(updated));
+        this.contentStore.invalidate();
         this.feedback.set('Conteúdo institucional atualizado.');
       },
       error: (error) => {

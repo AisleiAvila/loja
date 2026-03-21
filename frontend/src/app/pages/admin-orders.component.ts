@@ -23,7 +23,7 @@ export class AdminOrdersComponent implements OnInit {
   protected readonly orders = signal<Order[]>([]);
 
   ngOnInit(): void {
-    this.apiService.getOrders(this.token()).pipe(
+    this.apiService.getOrders().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (orders) => this.orders.set(orders),
