@@ -1,7 +1,7 @@
 const { supabase } = require('../config');
 const { createStorageOperationError } = require('../storage/errors');
 const { mapProductRow, serializeProduct } = require('../storage/mappers');
-const { readLocalStore, writeLocalStore } = require('../storage/localStore');
+const { readLocalStore, updateLocalStore } = require('../storage/localStore');
 
 async function listProducts() {
   if (supabase) {
@@ -57,17 +57,17 @@ async function saveProduct(product) {
     throw createStorageOperationError('Não foi possível guardar o produto no Supabase.', error);
   }
 
-  const store = await readLocalStore();
-  const index = store.products.findIndex((item) => item.id === product.id);
+  return updateLocalStore((store) => {
+    const index = store.products.findIndex((item) => item.id === product.id);
 
-  if (index === -1) {
-    store.products.push(product);
-  } else {
-    store.products[index] = product;
-  }
+    if (index === -1) {
+      store.products.push(product);
+    } else {
+      store.products[index] = product;
+    }
 
-  await writeLocalStore(store);
-  return product;
+    return product;
+  });
 }
 
 async function deleteProduct(productId) {
@@ -81,16 +81,16 @@ async function deleteProduct(productId) {
     throw createStorageOperationError('Não foi possível apagar o produto no Supabase.', error);
   }
 
-  const store = await readLocalStore();
-  const productIndex = store.products.findIndex((product) => product.id === productId);
+  return updateLocalStore((store) => {
+    const productIndex = store.products.findIndex((product) => product.id === productId);
 
-  if (productIndex === -1) {
-    return null;
-  }
+    if (productIndex === -1) {
+      return null;
+    }
 
-  const [removedProduct] = store.products.splice(productIndex, 1);
-  await writeLocalStore(store);
-  return removedProduct;
+    const [removedProduct] = store.products.splice(productIndex, 1);
+    return removedProduct;
+  });
 }
 
 function normalizeProductId(value) {

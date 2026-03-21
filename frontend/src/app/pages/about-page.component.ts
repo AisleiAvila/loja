@@ -16,10 +16,14 @@ export class AboutPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly content = signal<SiteContent | null>(null);
+  protected readonly loadError = signal('');
 
   ngOnInit(): void {
     this.apiService.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((content) => this.content.set(content));
+    ).subscribe({
+      next: (content) => this.content.set(content),
+      error: () => this.loadError.set('Não foi possível carregar o conteúdo.')
+    });
   }
 }

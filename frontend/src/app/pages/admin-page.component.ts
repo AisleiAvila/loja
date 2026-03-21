@@ -1,4 +1,5 @@
-﻿import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, inject, PLATFORM_ID, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../services/api.service';
@@ -16,8 +17,9 @@ import { AdminProductsComponent } from './admin-products.component';
 })
 export class AdminPageComponent {
   private readonly apiService = inject(ApiService);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  protected readonly token = signal(localStorage.getItem('admin-token') ?? '');
+  protected readonly token = signal(this.isBrowser ? localStorage.getItem('admin-token') ?? '' : '');
   protected readonly password = signal('');
   protected readonly feedback = signal('');
 
@@ -27,14 +29,14 @@ export class AdminPageComponent {
     this.apiService.adminLogin(this.password()).subscribe({
       next: ({ token }) => {
         this.token.set(token);
-        localStorage.setItem('admin-token', token);
+        if (this.isBrowser) localStorage.setItem('admin-token', token);
       },
       error: () => this.feedback.set('Credenciais inválidas.')
     });
   }
 
   protected onUnauthorized(): void {
-    localStorage.removeItem('admin-token');
+    if (this.isBrowser) localStorage.removeItem('admin-token');
     this.token.set('');
     this.feedback.set('Sessão expirada. Faça login novamente.');
   }

@@ -1,5 +1,5 @@
-import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { CurrencyPipe, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,6 +21,7 @@ export class CheckoutPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly apiService = inject(ApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   protected readonly products = signal<Product[]>([]);
   protected readonly errorMessage = signal('');
@@ -88,12 +89,14 @@ export class CheckoutPageComponent implements OnInit {
     this.submitting.set(true);
     this.errorMessage.set('');
 
-    this.apiService.createOrder(this.checkoutForm.getRawValue() as OrderFormValue).subscribe({
+    this.apiService.createOrder(this.checkoutForm.getRawValue() as OrderFormValue).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: ({ order, redirectUrl, paymentProvider }) => {
-        localStorage.setItem('last-order', JSON.stringify(order));
+        if (this.isBrowser) localStorage.setItem('last-order', JSON.stringify(order));
 
         if (paymentProvider === 'stripe' && redirectUrl) {
-          globalThis.location.href = redirectUrl;
+          if (this.isBrowser) globalThis.location.href = redirectUrl;
           return;
         }
 

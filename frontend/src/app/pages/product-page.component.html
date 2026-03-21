@@ -1,4 +1,6 @@
-@if (product(); as item) {
+@if (loadError()) {
+  <p class="error-banner">{{ loadError() }}</p>
+} @else if (product(); as item) {
 <section class="product-page section-shell">
   <div class="gallery card">
     <img class="main-image" [src]="selectedImage() || item.images[0]" [alt]="item.name" />

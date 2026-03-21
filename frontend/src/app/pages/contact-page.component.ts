@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
@@ -16,6 +17,7 @@ import { SiteContent } from '../types';
 export class ContactPageComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   protected readonly content = signal<SiteContent | null>(null);
   protected readonly formName = signal('');
@@ -39,7 +41,7 @@ export class ContactPageComponent implements OnInit {
     const subject = encodeURIComponent(`Pedido de contacto de ${this.formName()}`);
     const body = encodeURIComponent(`${this.formMessage()}\n\nEmail: ${this.formEmail()}`);
 
-    globalThis.location.href = `mailto:${page.contact.email}?subject=${subject}&body=${body}`;
+    if (this.isBrowser) globalThis.location.href = `mailto:${page.contact.email}?subject=${subject}&body=${body}`;
     this.submitted.set(true);
   }
 

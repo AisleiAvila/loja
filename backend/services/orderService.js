@@ -1,7 +1,7 @@
 const { supabase } = require('../config');
 const { createStorageOperationError } = require('../storage/errors');
 const { mapOrderRow, serializeOrder, serializeOrderPatch } = require('../storage/mappers');
-const { readLocalStore, writeLocalStore } = require('../storage/localStore');
+const { readLocalStore, updateLocalStore } = require('../storage/localStore');
 
 async function listOrders() {
   if (supabase) {
@@ -56,10 +56,10 @@ async function createOrder(order) {
     throw createStorageOperationError('Não foi possível gravar o pedido no Supabase.', error);
   }
 
-  const store = await readLocalStore();
-  store.orders.unshift(order);
-  await writeLocalStore(store);
-  return order;
+  return updateLocalStore((store) => {
+    store.orders.unshift(order);
+    return order;
+  });
 }
 
 async function updateOrder(orderId, patch) {
@@ -78,20 +78,20 @@ async function updateOrder(orderId, patch) {
     throw createStorageOperationError('Não foi possível atualizar o pedido no Supabase.', error);
   }
 
-  const store = await readLocalStore();
-  const orderIndex = store.orders.findIndex((order) => order.id === orderId);
+  return updateLocalStore((store) => {
+    const orderIndex = store.orders.findIndex((order) => order.id === orderId);
 
-  if (orderIndex === -1) {
-    return null;
-  }
+    if (orderIndex === -1) {
+      return null;
+    }
 
-  store.orders[orderIndex] = {
-    ...store.orders[orderIndex],
-    ...patch
-  };
+    store.orders[orderIndex] = {
+      ...store.orders[orderIndex],
+      ...patch
+    };
 
-  await writeLocalStore(store);
-  return store.orders[orderIndex];
+    return store.orders[orderIndex];
+  });
 }
 
 module.exports = { listOrders, getOrderById, hasOrdersForProduct, createOrder, updateOrder };

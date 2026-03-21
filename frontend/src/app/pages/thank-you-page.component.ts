@@ -1,5 +1,5 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { CurrencyPipe, DatePipe, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -18,6 +18,7 @@ export class ThankYouPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly apiService = inject(ApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   protected readonly order = signal<Order | null>(null);
   protected readonly loading = signal(true);
@@ -31,7 +32,7 @@ export class ThankYouPageComponent implements OnInit {
       ).subscribe({
         next: (order) => {
           this.order.set(order);
-          localStorage.setItem('last-order', JSON.stringify(order));
+          if (this.isBrowser) localStorage.setItem('last-order', JSON.stringify(order));
           this.loading.set(false);
         },
         error: () => {
@@ -54,13 +55,13 @@ export class ThankYouPageComponent implements OnInit {
       return;
     }
 
-    const persistedOrder = localStorage.getItem('last-order');
+    const persistedOrder = this.isBrowser ? localStorage.getItem('last-order') : null;
 
     if (persistedOrder) {
       const parsed = this.parseOrder(this.safeJsonParse(persistedOrder));
       if (parsed) {
         this.order.set(parsed);
-      } else {
+      } else if (this.isBrowser) {
         localStorage.removeItem('last-order');
       }
     }

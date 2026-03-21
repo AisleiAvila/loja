@@ -1,4 +1,6 @@
-@if (content(); as page) {
+@if (loadError()) {
+  <p class="error-banner">{{ loadError() }}</p>
+} @else if (content(); as page) {
 <section class="about section-shell">
   <div class="about-hero card">
     <span class="eyebrow">Sobre a marca</span>

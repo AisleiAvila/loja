@@ -20,18 +20,29 @@ export class HomePageComponent implements OnInit {
 
   protected readonly products = signal<Product[]>([]);
   protected readonly content = signal<SiteContent | null>(null);
+  protected readonly loadError = signal('');
 
   ngOnInit(): void {
     this.apiService.getProducts().pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((products) => {
-      this.products.set(products.filter((product) => product.featured));
+    ).subscribe({
+      next: (products) => {
+        this.products.set(products.filter((product) => product.featured));
+      },
+      error: () => {
+        this.loadError.set('Não foi possível carregar os produtos.');
+      }
     });
 
     this.apiService.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((content) => {
-      this.content.set(content);
+    ).subscribe({
+      next: (content) => {
+        this.content.set(content);
+      },
+      error: () => {
+        this.loadError.set('Não foi possível carregar o conteúdo.');
+      }
     });
   }
 }

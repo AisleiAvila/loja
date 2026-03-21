@@ -5,6 +5,17 @@ const { sendConfirmationEmail } = require('../services/emailService');
 
 const router = express.Router();
 
+// In-memory idempotency cache — prevents duplicate processing of Stripe events
+const processedEvents = new Map();
+const IDEMPOTENCY_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function pruneProcessedEvents() {
+  const cutoff = Date.now() - IDEMPOTENCY_TTL_MS;
+  for (const [id, timestamp] of processedEvents) {
+    if (timestamp < cutoff) processedEvents.delete(id);
+  }
+}
+
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   if (!stripe || !stripeWebhookSecret) {
     return res.status(404).json({ message: 'Stripe webhook não configurado.' });
@@ -21,7 +32,12 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   try {
     event = stripe.webhooks.constructEvent(req.body, signature, stripeWebhookSecret);
   } catch (error) {
-    return res.status(400).send(`Webhook Error: ${error.message}`);
+    return res.status(400).json({ message: 'Assinatura de webhook inválida.' });
+  }
+
+  // Idempotency check — skip already-processed events
+  if (processedEvents.has(event.id)) {
+    return res.json({ received: true, duplicate: true });
   }
 
   try {
@@ -61,6 +77,10 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   } catch (error) {
     console.error(`[ERROR] Webhook processing failed for event ${event?.id}:`, error.message);
     return res.status(500).json({ message: 'Erro interno ao processar o webhook.' });
+  } finally {
+    // Mark event as processed after handling (even on error, to avoid retry loops)
+    processedEvents.set(event.id, Date.now());
+    pruneProcessedEvents();
   }
 });
 

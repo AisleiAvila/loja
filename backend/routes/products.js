@@ -5,7 +5,7 @@ const { deleteManagedAssets } = require('../storage/assets');
 const { listProducts, getProductBySlug, getProductById, saveProduct, deleteProduct, normalizeProductId } = require('../services/productService');
 const { hasOrdersForProduct } = require('../services/orderService');
 
-const validateProductId = validateParamId(/^[a-z0-9-]{1,200}$/);
+const validateProductId = validateParamId(/^[a-z0-9-]{1,100}$/);
 
 const router = express.Router();
 

@@ -23,6 +23,7 @@ export class ProductPageComponent implements OnInit {
 
   protected readonly product = signal<Product | null>(null);
   protected readonly selectedImage = signal('');
+  protected readonly loadError = signal('');
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
@@ -31,9 +32,14 @@ export class ProductPageComponent implements OnInit {
         return slug ? this.apiService.getProductBySlug(slug) : EMPTY;
       }),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((product) => {
-      this.product.set(product);
-      this.selectedImage.set(product.images[0] ?? '');
+    ).subscribe({
+      next: (product) => {
+        this.product.set(product);
+        this.selectedImage.set(product.images[0] ?? '');
+      },
+      error: () => {
+        this.loadError.set('Não foi possível carregar o produto.');
+      }
     });
   }
 

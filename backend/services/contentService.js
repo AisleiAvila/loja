@@ -1,7 +1,7 @@
 const { supabase } = require('../config');
 const { createStorageOperationError } = require('../storage/errors');
 const { mapContentRow } = require('../storage/mappers');
-const { readLocalStore, writeLocalStore } = require('../storage/localStore');
+const { readLocalStore, updateLocalStore } = require('../storage/localStore');
 
 async function getContent() {
   if (supabase) {
@@ -39,10 +39,10 @@ async function saveContent(content) {
     throw createStorageOperationError('Não foi possível guardar o conteúdo institucional no Supabase.', error);
   }
 
-  const store = await readLocalStore();
-  store.content = content;
-  await writeLocalStore(store);
-  return content;
+  return updateLocalStore((store) => {
+    store.content = content;
+    return content;
+  });
 }
 
 module.exports = { getContent, saveContent };
