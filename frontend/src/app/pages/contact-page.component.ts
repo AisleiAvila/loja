@@ -24,11 +24,18 @@ export class ContactPageComponent implements OnInit {
   protected readonly formEmail = signal('');
   protected readonly formMessage = signal('');
   protected readonly submitted = signal(false);
+  protected readonly loading = signal(true);
 
   ngOnInit(): void {
     this.contentStore.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((content) => this.content.set(content));
+    ).subscribe({
+      next: (content) => {
+        this.content.set(content);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
   }
 
   protected send(): void {

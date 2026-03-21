@@ -1,5 +1,27 @@
 @if (loadError()) {
-  <p class="error-banner">{{ loadError() }}</p>
+  <p class="error-banner" aria-live="polite">{{ loadError() }}</p>
+} @else if (loading() && !content()) {
+  <section class="about section-shell">
+    <div class="about-hero card">
+      <div class="skeleton-text small" style="width: 10rem"></div>
+      <div class="skeleton-text large"></div>
+      <div class="skeleton-text medium"></div>
+      <div class="skeleton-text medium" style="width: 70%"></div>
+    </div>
+    <div class="about-grid">
+      <div class="card" style="padding: clamp(1.25rem, 3vw, 2rem)">
+        <div class="skeleton-text large" style="width: 40%"></div>
+        <div class="skeleton-text medium"></div>
+        <div class="skeleton-text medium" style="width: 75%"></div>
+      </div>
+      <div class="card" style="padding: clamp(1.25rem, 3vw, 2rem)">
+        <div class="skeleton-text large" style="width: 40%"></div>
+        @for (i of [1, 2, 3]; track i) {
+          <div class="skeleton-text" style="width: 80%"></div>
+        }
+      </div>
+    </div>
+  </section>
 } @else if (content(); as page) {
 <section class="about section-shell">
   <div class="about-hero card">

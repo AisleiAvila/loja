@@ -88,4 +88,15 @@ export class ThankYouPageComponent implements OnInit {
     }
     return null;
   }
+
+  private static readonly statusLabels: Record<string, string> = {
+    pending: 'Pendente',
+    awaiting_payment: 'A aguardar pagamento',
+    paid: 'Pago',
+    failed: 'Falhado'
+  };
+
+  protected statusLabel(status: string): string {
+    return ThankYouPageComponent.statusLabels[status] ?? status;
+  }
 }

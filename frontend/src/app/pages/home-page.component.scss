@@ -101,6 +101,12 @@
 
 .product-card {
   overflow: hidden;
+  transition: transform 280ms ease, box-shadow 280ms ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 32px 72px rgba(44, 48, 43, 0.18);
 }
 
 .image-wrap {

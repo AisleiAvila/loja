@@ -17,13 +17,20 @@ export class AboutPageComponent implements OnInit {
 
   protected readonly content = signal<SiteContent | null>(null);
   protected readonly loadError = signal('');
+  protected readonly loading = signal(true);
 
   ngOnInit(): void {
     this.contentStore.getContent().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (content) => this.content.set(content),
-      error: () => this.loadError.set('Não foi possível carregar o conteúdo.')
+      next: (content) => {
+        this.content.set(content);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loadError.set('Não foi possível carregar o conteúdo.');
+        this.loading.set(false);
+      }
     });
   }
 }

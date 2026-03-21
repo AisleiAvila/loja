@@ -1,4 +1,23 @@
-@if (content(); as page) {
+@if (loading() && !content()) {
+  <section class="contact section-shell">
+    <div class="contact-copy card">
+      <div class="skeleton-text small" style="width: 8rem"></div>
+      <div class="skeleton-text large"></div>
+      <div class="skeleton-text medium"></div>
+      <div style="display: grid; gap: 0.75rem; margin-top: 1rem">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="skeleton-text" style="width: 60%"></div>
+        }
+      </div>
+    </div>
+    <div class="contact-form card">
+      @for (i of [1, 2]; track i) {
+        <div class="skeleton" style="height: 3.1rem"></div>
+      }
+      <div class="skeleton" style="height: 8rem"></div>
+    </div>
+  </section>
+} @else if (content(); as page) {
 <section class="contact section-shell">
   <div class="contact-copy card">
     <span class="eyebrow">Contacto</span>
@@ -13,25 +32,34 @@
     </div>
   </div>
 
-  <form class="contact-form card" (ngSubmit)="send()">
+  <form class="contact-form card" #contactForm="ngForm" (ngSubmit)="contactForm.valid && send()">
     <label>
       Nome
-      <input class="field" type="text" name="name" [(ngModel)]="formName" required />
+      <input class="field" [class.invalid]="nameCtrl.touched && nameCtrl.invalid" type="text" name="name" [(ngModel)]="formName" required #nameCtrl="ngModel" />
+      @if (nameCtrl.touched && nameCtrl.invalid) {
+        <small class="field-error">Nome é obrigatório.</small>
+      }
     </label>
 
     <label>
       E-mail
-      <input class="field" type="email" name="email" [(ngModel)]="formEmail" required />
+      <input class="field" [class.invalid]="emailCtrl.touched && emailCtrl.invalid" type="email" name="email" [(ngModel)]="formEmail" required email #emailCtrl="ngModel" />
+      @if (emailCtrl.touched && emailCtrl.invalid) {
+        <small class="field-error">E-mail válido é obrigatório.</small>
+      }
     </label>
 
     <label>
       Mensagem
-      <textarea class="textarea" name="message" [(ngModel)]="formMessage" required></textarea>
+      <textarea class="textarea" [class.invalid]="messageCtrl.touched && messageCtrl.invalid" name="message" [(ngModel)]="formMessage" required #messageCtrl="ngModel"></textarea>
+      @if (messageCtrl.touched && messageCtrl.invalid) {
+        <small class="field-error">Mensagem é obrigatória.</small>
+      }
     </label>
 
     <button class="btn-secondary" type="submit">Enviar</button>
     @if (submitted()) {
-      <p class="status success">O seu cliente de e-mail foi aberto com a mensagem preparada.</p>
+      <p class="status success" aria-live="polite">O seu cliente de e-mail foi aberto com a mensagem preparada.</p>
     }
   </form>
 </section>

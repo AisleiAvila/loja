@@ -38,7 +38,7 @@
 
       <label>
         Telefone
-        <input class="field" [class.invalid]="checkoutForm.controls.phone.touched && checkoutForm.controls.phone.invalid" type="text" formControlName="phone" />
+        <input class="field" [class.invalid]="checkoutForm.controls.phone.touched && checkoutForm.controls.phone.invalid" type="tel" placeholder="+351 912 345 678" formControlName="phone" />
         @if (checkoutForm.controls.phone.touched && checkoutForm.controls.phone.invalid) {
           <small class="field-error">Telefone é obrigatório.</small>
         }
@@ -46,7 +46,7 @@
 
       <label>
         Código postal
-        <input class="field" [class.invalid]="checkoutForm.controls.postalCode.touched && checkoutForm.controls.postalCode.invalid" type="text" formControlName="postalCode" />
+        <input class="field" [class.invalid]="checkoutForm.controls.postalCode.touched && checkoutForm.controls.postalCode.invalid" type="text" placeholder="1000-100" formControlName="postalCode" />
         @if (checkoutForm.controls.postalCode.touched && checkoutForm.controls.postalCode.invalid) {
           <small class="field-error">Código postal é obrigatório.</small>
         }
@@ -87,10 +87,10 @@
       {{ submitting() ? 'A processar...' : 'Finalizar pedido' }}
     </button>
     @if (infoMessage()) {
-      <p class="status warning">{{ infoMessage() }}</p>
+      <p class="status warning" aria-live="polite">{{ infoMessage() }}</p>
     }
     @if (errorMessage()) {
-      <p class="status warning">{{ errorMessage() }}</p>
+      <p class="status error" aria-live="assertive">{{ errorMessage() }}</p>
     }
   </form>
 

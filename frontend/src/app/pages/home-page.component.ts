@@ -23,6 +23,7 @@ export class HomePageComponent implements OnInit {
   protected readonly products = signal<Product[]>([]);
   protected readonly content = signal<SiteContent | null>(null);
   protected readonly loadError = signal('');
+  protected readonly loading = signal(true);
 
   ngOnInit(): void {
     this.apiService.getProducts().pipe(
@@ -30,9 +31,11 @@ export class HomePageComponent implements OnInit {
     ).subscribe({
       next: (products) => {
         this.products.set(products.filter((product) => product.featured));
+        this.loading.set(false);
       },
       error: () => {
         this.loadError.set('Não foi possível carregar os produtos.');
+        this.loading.set(false);
       }
     });
 

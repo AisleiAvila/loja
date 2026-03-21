@@ -111,4 +111,12 @@ export class CheckoutPageComponent implements OnInit {
       }
     });
   }
+
+  canDeactivate(): boolean {
+    if (this.submitting()) return true;
+    const { customerName, email, phone, address } = this.checkoutForm.getRawValue();
+    const hasData = !!(customerName || email || phone || address);
+    if (!hasData) return true;
+    return confirm('Tem dados preenchidos no formulário. Tem a certeza que deseja sair?');
+  }
 }

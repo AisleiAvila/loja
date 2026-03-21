@@ -15,6 +15,7 @@
   aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: 1.25rem;
+  transition: opacity 300ms ease;
 }
 
 .thumbs {
@@ -30,10 +31,18 @@
   border-radius: 1rem;
   overflow: hidden;
   background: transparent;
+  cursor: pointer;
+  transition: border-color 200ms ease, opacity 200ms ease;
+  opacity: 0.7;
+}
+
+.thumbs button:hover {
+  opacity: 1;
 }
 
 .thumbs button.active {
   border-color: var(--accent);
+  opacity: 1;
 }
 
 .thumbs img {

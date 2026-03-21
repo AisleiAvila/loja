@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
@@ -15,6 +16,7 @@ import { SiteContent } from './types';
 export class App implements OnInit {
   private readonly contentStore = inject(ContentStoreService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   protected readonly mobileMenuOpen = signal(false);
   protected readonly siteContent = signal<SiteContent | null>(null);
@@ -35,6 +37,18 @@ export class App implements OnInit {
   protected closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
   }
+
+  @HostListener('document:keydown.escape')
+  protected onEscape(): void {
+    if (this.mobileMenuOpen()) {
+      this.mobileMenuOpen.set(false);
+    }
+  }
+
+  protected readonly isAdmin = computed(() => {
+    if (!this.isBrowser) return false;
+    return !!localStorage.getItem('admin-token');
+  });
 
   protected readonly whatsappLink = computed(() => {
     const number = this.siteContent()?.contact.whatsapp?.replaceAll(/\D/g, '') ?? '';

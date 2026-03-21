@@ -24,7 +24,8 @@ export const routes: Routes = [
 	{
 		path: 'checkout',
 		loadComponent: () => import('./pages/checkout-page.component').then(m => m.CheckoutPageComponent),
-		title: 'Luz do Atlântico | Checkout'
+		title: 'Luz do Atlântico | Checkout',
+		canDeactivate: [(component: { canDeactivate(): boolean }) => component.canDeactivate()]
 	},
 	{
 		path: 'obrigado',
@@ -38,6 +39,7 @@ export const routes: Routes = [
 	},
 	{
 		path: '**',
-		redirectTo: ''
+		loadComponent: () => import('./pages/not-found-page.component').then(m => m.NotFoundPageComponent),
+		title: 'Luz do Atlântico | Página não encontrada'
 	}
 ];

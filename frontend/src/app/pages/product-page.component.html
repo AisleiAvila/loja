@@ -1,13 +1,36 @@
 @if (loadError()) {
-  <p class="error-banner">{{ loadError() }}</p>
+  <p class="error-banner" aria-live="polite">{{ loadError() }}</p>
+} @else if (loading() && !product()) {
+  <section class="product-page section-shell">
+    <div class="gallery card">
+      <div class="skeleton" style="aspect-ratio: 4 / 5; border-radius: 1.25rem"></div>
+      <div class="thumbs">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="skeleton" style="aspect-ratio: 1"></div>
+        }
+      </div>
+    </div>
+    <div class="summary card">
+      <div class="skeleton-text small" style="width: 8rem"></div>
+      <div class="skeleton-text large"></div>
+      <div class="skeleton-text medium"></div>
+      <div class="skeleton-text medium" style="width: 65%"></div>
+      <div class="skeleton-text large" style="width: 30%"></div>
+      <div style="display: grid; gap: 0.75rem">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="skeleton" style="height: 3rem"></div>
+        }
+      </div>
+    </div>
+  </section>
 } @else if (product(); as item) {
 <section class="product-page section-shell">
   <div class="gallery card">
     <img class="main-image" [src]="selectedImage() || item.images[0]" [alt]="item.name" />
     <div class="thumbs">
       @for (image of item.images; track image) {
-        <button type="button" (click)="selectImage(image)" [class.active]="selectedImage() === image">
-          <img [src]="image" [alt]="item.name" loading="lazy" />
+        <button type="button" (click)="selectImage(image)" [class.active]="selectedImage() === image" [attr.aria-current]="selectedImage() === image ? 'true' : null">
+          <img [src]="image" [alt]="item.name" loading="lazy" decoding="async" />
         </button>
       }
     </div>

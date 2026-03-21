@@ -1,6 +1,35 @@
 @if (loadError()) {
-  <p class="error-banner">{{ loadError() }}</p>
+  <p class="error-banner" aria-live="polite">{{ loadError() }}</p>
 }
+
+@if (loading() && !products().length && !loadError()) {
+  <section class="hero section-shell">
+    <div class="hero-copy card">
+      <div class="skeleton-text small" style="width: 10rem"></div>
+      <div class="skeleton-text large"></div>
+      <div class="skeleton-text medium"></div>
+      <div class="skeleton-text medium" style="width: 70%"></div>
+    </div>
+    <div class="skeleton card" style="min-height: 35rem"></div>
+  </section>
+  <section class="products section-shell">
+    <div class="section-heading">
+      <div class="skeleton-text small" style="width: 6rem"></div>
+      <div class="skeleton-text large"></div>
+    </div>
+    <div class="product-grid">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="product-card card">
+          <div class="skeleton" style="aspect-ratio: 4 / 5"></div>
+          <div style="padding: 1.2rem; display: grid; gap: 0.85rem">
+            <div class="skeleton-text medium"></div>
+            <div class="skeleton-text small"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+} @else {
 <section class="hero section-shell">
   <div class="hero-copy card">
     <span class="eyebrow">Coleção portuguesa</span>
@@ -61,7 +90,7 @@
     @for (product of products(); track product.id) {
       <article class="product-card card">
         <div class="image-wrap">
-          <img [src]="product.images[0]" [alt]="product.name" loading="lazy" />
+          <img [src]="product.images[0]" [alt]="product.name" loading="lazy" decoding="async" />
           @if (product.badge) {
             <span>{{ product.badge }}</span>
           }
@@ -75,6 +104,13 @@
           </div>
         </div>
       </article>
+    } @empty {
+      @if (!loading()) {
+        <div class="empty-state" style="grid-column: 1 / -1">
+          <h3>Sem produtos disponíveis</h3>
+          <p>De momento não existem produtos em destaque. Volte mais tarde.</p>
+        </div>
+      }
     }
   </div>
 </section>
@@ -99,3 +135,4 @@
     </article>
   </div>
 </section>
+}
