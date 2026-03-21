@@ -6,7 +6,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const cors = require('cors');
 const express = require('express');
-const { uploadDir } = require('./config');
+const { uploadDir, siteUrl } = require('./config');
 const { errorHandler } = require('./middleware/errorHandler');
 const productsRouter = require('./routes/products');
 const ordersRouter = require('./routes/orders');
@@ -18,7 +18,10 @@ const webhookRouter = require('./routes/webhook');
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
-app.use(cors({ origin: true, credentials: true }));
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [siteUrl]
+  : [siteUrl, 'http://localhost:4200', 'http://localhost:4000'];
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use('/uploads', express.static(uploadDir));
 
 // Webhook must be registered before express.json() to receive the raw body

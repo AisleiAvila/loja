@@ -1,47 +1,39 @@
 import { Routes } from '@angular/router';
 
-import { AboutPageComponent } from './pages/about-page.component';
-import { AdminPageComponent } from './pages/admin-page.component';
-import { CheckoutPageComponent } from './pages/checkout-page.component';
-import { ContactPageComponent } from './pages/contact-page.component';
-import { HomePageComponent } from './pages/home-page.component';
-import { ProductPageComponent } from './pages/product-page.component';
-import { ThankYouPageComponent } from './pages/thank-you-page.component';
-
 export const routes: Routes = [
 	{
 		path: '',
-		component: HomePageComponent,
+		loadComponent: () => import('./pages/home-page.component').then(m => m.HomePageComponent),
 		title: 'Luz do Atlântico | Home'
 	},
 	{
 		path: 'produto/:slug',
-		component: ProductPageComponent,
+		loadComponent: () => import('./pages/product-page.component').then(m => m.ProductPageComponent),
 		title: 'Luz do Atlântico | Produto'
 	},
 	{
 		path: 'sobre',
-		component: AboutPageComponent,
+		loadComponent: () => import('./pages/about-page.component').then(m => m.AboutPageComponent),
 		title: 'Luz do Atlântico | Sobre'
 	},
 	{
 		path: 'contacto',
-		component: ContactPageComponent,
+		loadComponent: () => import('./pages/contact-page.component').then(m => m.ContactPageComponent),
 		title: 'Luz do Atlântico | Contacto'
 	},
 	{
 		path: 'checkout',
-		component: CheckoutPageComponent,
+		loadComponent: () => import('./pages/checkout-page.component').then(m => m.CheckoutPageComponent),
 		title: 'Luz do Atlântico | Checkout'
 	},
 	{
 		path: 'obrigado',
-		component: ThankYouPageComponent,
+		loadComponent: () => import('./pages/thank-you-page.component').then(m => m.ThankYouPageComponent),
 		title: 'Luz do Atlântico | Obrigado'
 	},
 	{
 		path: 'admin',
-		component: AdminPageComponent,
+		loadComponent: () => import('./pages/admin-page.component').then(m => m.AdminPageComponent),
 		title: 'Luz do Atlântico | Admin'
 	},
 	{

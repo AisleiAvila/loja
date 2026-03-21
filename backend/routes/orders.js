@@ -19,7 +19,9 @@ router.get('/:id/summary', async (req, res) => {
     return res.status(404).json({ message: 'Pedido não encontrado.' });
   }
 
-  return res.json(order);
+  // Return only non-PII fields to avoid exposing customer data to anyone with an order ID
+  const { id, productId, productName, quantity, total, status, createdAt, paymentMethod, paymentProvider, paymentReference, paymentUrl } = order;
+  return res.json({ id, productId, productName, quantity, total, status, createdAt, paymentMethod, paymentProvider, paymentReference, paymentUrl });
 });
 
 router.post('/', async (req, res) => {
