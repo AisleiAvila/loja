@@ -27,7 +27,7 @@
   </div>
 
   <div class="hero-media card">
-    <ng-container *ngIf="content()?.brand?.heroVideoUrl; else posterOnly">
+    @if (content()?.brand?.heroVideoUrl) {
       <video
         [poster]="content()?.brand?.heroPosterUrl"
         [src]="content()?.brand?.heroVideoUrl"
@@ -38,10 +38,9 @@
       >
         <track default kind="captions" label="Português" srclang="pt" src="/captions-demo.vtt" />
       </video>
-    </ng-container>
-    <ng-template #posterOnly>
+    } @else {
       <img [src]="content()?.brand?.heroPosterUrl" alt="Coleção Luz do Atlântico" />
-    </ng-template>
+    }
     <div class="hero-badge">
       <span>Checkout real</span>
       <strong>Stripe + operação local preparada</strong>
@@ -56,20 +55,24 @@
   </div>
 
   <div class="product-grid">
-    <article class="product-card card" *ngFor="let product of products()">
-      <div class="image-wrap">
-        <img [src]="product.images[0]" [alt]="product.name" loading="lazy" />
-        <span *ngIf="product.badge">{{ product.badge }}</span>
-      </div>
-      <div class="product-copy">
-        <h3>{{ product.name }}</h3>
-        <p>{{ product.shortDescription }}</p>
-        <div class="product-meta">
-          <strong>{{ product.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</strong>
-          <a class="btn" [routerLink]="['/produto', product.slug]">Ver detalhes</a>
+    @for (product of products(); track product.id) {
+      <article class="product-card card">
+        <div class="image-wrap">
+          <img [src]="product.images[0]" [alt]="product.name" loading="lazy" />
+          @if (product.badge) {
+            <span>{{ product.badge }}</span>
+          }
         </div>
-      </div>
-    </article>
+        <div class="product-copy">
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.shortDescription }}</p>
+          <div class="product-meta">
+            <strong>{{ product.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</strong>
+            <a class="btn" [routerLink]="['/produto', product.slug]">Ver detalhes</a>
+          </div>
+        </div>
+      </article>
+    }
   </div>
 </section>
 

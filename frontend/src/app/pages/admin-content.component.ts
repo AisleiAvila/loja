@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../services/api.service';
@@ -8,12 +8,14 @@ import { SiteContent } from '../types';
 @Component({
   selector: 'app-admin-content',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './admin-content.component.html',
-  styleUrl: './admin-content.component.scss'
+  styleUrl: './admin-content.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminContentComponent implements OnInit {
   private readonly apiService = inject(ApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly token = input.required<string>();
   readonly unauthorized = output<void>();
@@ -22,7 +24,9 @@ export class AdminContentComponent implements OnInit {
   protected readonly feedback = signal('');
 
   ngOnInit(): void {
-    this.apiService.getContent().subscribe({
+    this.apiService.getContent().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (content) => this.content.set(content),
       error: (err) => {
         if (err.status === 401) this.unauthorized.emit();

@@ -1,4 +1,5 @@
-<section class="editor card" *ngIf="content() as page">
+@if (content(); as page) {
+<section class="editor card">
   <div class="panel-header">
     <div>
       <span class="eyebrow">Conteúdo</span>
@@ -49,5 +50,8 @@
     <button class="btn-secondary" type="button" (click)="saveContent()">Guardar conteúdo</button>
   </div>
 
-  <p class="status success" *ngIf="feedback()">{{ feedback() }}</p>
+  @if (feedback()) {
+    <p class="status success">{{ feedback() }}</p>
+  }
 </section>
+}

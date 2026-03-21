@@ -1,19 +1,22 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../services/api.service';
 import { Product } from '../types';
+import { AdminProductFormComponent } from './admin-product-form.component';
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule, AdminProductFormComponent],
   templateUrl: './admin-products.component.html',
-  styleUrl: './admin-products.component.scss'
+  styleUrl: './admin-products.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminProductsComponent implements OnInit {
   private readonly apiService = inject(ApiService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly productPageSize = 6;
 
   readonly token = input.required<string>();
@@ -26,8 +29,6 @@ export class AdminProductsComponent implements OnInit {
   protected readonly isCreatingProduct = signal(false);
   protected readonly previousSelectedProductId = signal('');
   protected readonly validationErrors = signal<Record<string, string>>({});
-  protected readonly imageUploadFeedback = signal('');
-  protected readonly isUploadingImage = signal(false);
   protected readonly productSearch = signal('');
   protected readonly currentProductPage = signal(1);
 
@@ -65,7 +66,9 @@ export class AdminProductsComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.apiService.getProducts().subscribe({
+    this.apiService.getProducts().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (products) => {
         this.products.set(this.sortProducts(products));
         this.syncProductPagination();
@@ -75,6 +78,14 @@ export class AdminProductsComponent implements OnInit {
         if (err.status === 401) this.unauthorized.emit();
       }
     });
+  }
+
+  protected onProductChange(product: Product): void {
+    this.editableProduct.set(product);
+  }
+
+  protected onFieldEdited(field: string): void {
+    this.clearValidationError(field);
   }
 
   protected saveProduct(): void {
@@ -96,7 +107,6 @@ export class AdminProductsComponent implements OnInit {
     const request = this.isCreatingProduct()
       ? this.apiService.createProduct(token, product)
       : this.apiService.updateProduct(token, product.id, product);
-
     request.subscribe({
       next: (savedProduct) => {
         if (this.isCreatingProduct()) {
@@ -108,7 +118,6 @@ export class AdminProductsComponent implements OnInit {
         }
 
         this.validationErrors.set({});
-        this.imageUploadFeedback.set('');
         this.syncProductPagination();
         this.selectProduct(savedProduct.id);
       },
@@ -137,7 +146,6 @@ export class AdminProductsComponent implements OnInit {
         this.products.set(remainingProducts);
         this.feedback.set('Produto apagado com sucesso.');
         this.validationErrors.set({});
-        this.imageUploadFeedback.set('');
         this.syncProductPagination();
         this.selectProduct(remainingProducts[0]?.id ?? '');
       },
@@ -151,7 +159,6 @@ export class AdminProductsComponent implements OnInit {
   protected startNewProduct(): void {
     this.feedback.set('');
     this.validationErrors.set({});
-    this.imageUploadFeedback.set('');
     this.previousSelectedProductId.set(this.selectedProductId());
     this.isCreatingProduct.set(true);
     this.selectedProductId.set('');
@@ -174,7 +181,6 @@ export class AdminProductsComponent implements OnInit {
   protected cancelProductChanges(): void {
     this.feedback.set('');
     this.validationErrors.set({});
-    this.imageUploadFeedback.set('');
 
     if (this.isCreatingProduct()) {
       this.selectProduct(this.previousSelectedProductId() || this.products()[0]?.id || '');
@@ -187,7 +193,6 @@ export class AdminProductsComponent implements OnInit {
   protected selectExistingProduct(productId: string): void {
     this.feedback.set('');
     this.validationErrors.set({});
-    this.imageUploadFeedback.set('');
     this.selectProduct(productId);
   }
 
@@ -200,158 +205,6 @@ export class AdminProductsComponent implements OnInit {
     const currentPage = this.currentProductPage();
     const nextPage = direction === 'previous' ? currentPage - 1 : currentPage + 1;
     this.currentProductPage.set(Math.min(Math.max(nextPage, 1), this.totalProductPages()));
-  }
-
-  protected updateProductList(field: 'benefits' | 'images', value: string): void {
-    const product = this.editableProduct();
-
-    if (!product) {
-      return;
-    }
-
-    this.updateProductField(
-      field,
-      value
-        .split('\n')
-        .map((item) => item.trim())
-        .filter(Boolean)
-    );
-
-    this.clearValidationError(field);
-  }
-
-  protected uploadProductImage(event: Event): void {
-    const token = this.token();
-    const product = this.editableProduct();
-    const input = event.target as HTMLInputElement | null;
-    const file = input?.files?.[0];
-
-    if (!token || !product || !file) {
-      return;
-    }
-
-    this.isUploadingImage.set(true);
-    this.imageUploadFeedback.set('');
-
-    this.apiService.uploadProductImage(token, file).subscribe({
-      next: ({ url }) => {
-        const currentProduct = this.editableProduct();
-
-        if (!currentProduct) {
-          return;
-        }
-
-        const nextImages = currentProduct.images.filter((image) => image !== '/brand/products/novo-produto.svg');
-        this.updateProductField('images', [...nextImages, url]);
-        this.clearValidationError('images');
-        this.imageUploadFeedback.set('Imagem enviada com sucesso.');
-
-        if (input) {
-          input.value = '';
-        }
-      },
-      error: (error) => {
-        if (error.status === 401) { this.unauthorized.emit(); return; }
-        this.imageUploadFeedback.set(error.error?.message || 'Não foi possível enviar a imagem.');
-      },
-      complete: () => this.isUploadingImage.set(false)
-    });
-  }
-
-  protected removeProductImage(imageToRemove: string): void {
-    const token = this.token();
-    const product = this.editableProduct();
-
-    if (!product) {
-      return;
-    }
-
-    const finalizeRemoval = () => {
-      const currentProduct = this.editableProduct();
-
-      if (!currentProduct) {
-        return;
-      }
-
-      const nextImages = currentProduct.images.filter((image) => image !== imageToRemove);
-      this.updateProductField('images', nextImages);
-      this.imageUploadFeedback.set(nextImages.length ? 'Imagem removida da galeria.' : 'A galeria ficou vazia. Adicione uma nova imagem.');
-
-      if (nextImages.length === 0) {
-        this.validationErrors.set({
-          ...this.validationErrors(),
-          images: 'Adicione pelo menos uma imagem.'
-        });
-      }
-    };
-
-    if (!this.isManagedUploadAsset(imageToRemove) || !token) {
-      finalizeRemoval();
-      return;
-    }
-
-    this.isUploadingImage.set(true);
-    this.imageUploadFeedback.set('');
-
-    this.apiService.deleteUploadedAsset(token, imageToRemove).subscribe({
-      next: () => finalizeRemoval(),
-      error: (error) => {
-        if (error.status === 401) { this.unauthorized.emit(); return; }
-        this.imageUploadFeedback.set(error.error?.message || 'Não foi possível remover a imagem do storage.');
-      },
-      complete: () => this.isUploadingImage.set(false)
-    });
-  }
-
-  protected clearImageUploadFeedback(): void {
-    this.imageUploadFeedback.set('');
-  }
-
-  protected updateProductName(value: string): void {
-    const product = this.editableProduct();
-
-    if (!product) {
-      return;
-    }
-
-    const currentGeneratedSlug = this.slugify(product.name);
-    const shouldSyncSlug = this.isCreatingProduct() && (!product.slug || product.slug === currentGeneratedSlug);
-
-    this.editableProduct.set({
-      ...product,
-      name: value,
-      slug: shouldSyncSlug ? this.slugify(value) : product.slug
-    });
-
-    this.clearValidationError('name');
-
-    if (shouldSyncSlug) {
-      this.clearValidationError('slug');
-    }
-  }
-
-  protected updateProductField<K extends keyof Product>(field: K, value: Product[K]): void {
-    const product = this.editableProduct();
-
-    if (!product) {
-      return;
-    }
-
-    this.editableProduct.set({
-      ...product,
-      [field]: value
-    });
-
-    this.clearValidationError(String(field));
-  }
-
-  protected updateOptionalNumberField(field: 'compareAtPrice', value: number | string | null): void {
-    if (value === null || value === '' || Number.isNaN(Number(value))) {
-      this.updateProductField(field, undefined);
-      return;
-    }
-
-    this.updateProductField(field, Number(value));
   }
 
   private selectProduct(productId: string): void {
@@ -403,33 +256,6 @@ export class AdminProductsComponent implements OnInit {
     return value.startsWith('/') || /^https?:\/\//.test(value);
   }
 
-  private isManagedUploadAsset(value: string): boolean {
-    if (value.startsWith('/uploads/')) {
-      return true;
-    }
-
-    if (value.startsWith('/api/assets/blob/')) {
-      return true;
-    }
-
-    if (!/^https?:\/\//.test(value)) {
-      return false;
-    }
-
-    try {
-      const parsedUrl = new URL(value);
-      const hostname = parsedUrl.hostname;
-
-      if (parsedUrl.pathname.startsWith('/api/assets/blob/')) {
-        return true;
-      }
-
-      return hostname.includes('blob.vercel-storage.com') || hostname.includes('supabase.co');
-    } catch {
-      return false;
-    }
-  }
-
   private normalizeSearch(value: string): string {
     return value
       .normalize('NFD')
@@ -453,15 +279,5 @@ export class AdminProductsComponent implements OnInit {
       images: [...product.images],
       benefits: [...product.benefits]
     };
-  }
-
-  private slugify(value: string): string {
-    return value
-      .normalize('NFD')
-      .replaceAll(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim()
-      .replaceAll(/[^a-z0-9]+/g, '-')
-      .replaceAll(/(^-|-$)/g, '');
   }
 }

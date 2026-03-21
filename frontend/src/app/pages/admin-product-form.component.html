@@ -1,0 +1,75 @@
+<div class="editor-grid">
+  <label>
+    Nome
+    <input class="field" [class.invalid]="validationErrors()['name']" type="text" [ngModel]="product().name" (ngModelChange)="updateProductName($event)" />
+    @if (validationErrors()['name']) {
+      <small class="field-error">{{ validationErrors()['name'] }}</small>
+    }
+  </label>
+  <label>
+    Slug
+    <input class="field" [class.invalid]="validationErrors()['slug']" type="text" [ngModel]="product().slug" (ngModelChange)="updateProductField('slug', $event)" />
+    @if (validationErrors()['slug']) {
+      <small class="field-error">{{ validationErrors()['slug'] }}</small>
+    }
+  </label>
+  <label class="full-span">
+    Descrição curta
+    <input class="field" [class.invalid]="validationErrors()['shortDescription']" type="text" [ngModel]="product().shortDescription" (ngModelChange)="updateProductField('shortDescription', $event)" />
+    @if (validationErrors()['shortDescription']) {
+      <small class="field-error">{{ validationErrors()['shortDescription'] }}</small>
+    }
+  </label>
+  <label class="full-span">
+    Descrição completa
+    <textarea class="textarea" [class.invalid]="validationErrors()['description']" [ngModel]="product().description" (ngModelChange)="updateProductField('description', $event)"></textarea>
+    @if (validationErrors()['description']) {
+      <small class="field-error">{{ validationErrors()['description'] }}</small>
+    }
+  </label>
+  <label>
+    Preço
+    <input class="field" [class.invalid]="validationErrors()['price']" type="number" [ngModel]="product().price" (ngModelChange)="updateProductField('price', $event)" />
+    @if (validationErrors()['price']) {
+      <small class="field-error">{{ validationErrors()['price'] }}</small>
+    }
+  </label>
+  <label>
+    Preço anterior
+    <input class="field" [class.invalid]="validationErrors()['compareAtPrice']" type="number" [ngModel]="product().compareAtPrice ?? null" (ngModelChange)="updateOptionalNumberField('compareAtPrice', $event)" />
+    @if (validationErrors()['compareAtPrice']) {
+      <small class="field-error">{{ validationErrors()['compareAtPrice'] }}</small>
+    }
+  </label>
+  <label>
+    Selo
+    <input class="field" type="text" [ngModel]="product().badge" (ngModelChange)="updateProductField('badge', $event)" />
+  </label>
+  <label>
+    Destaque na home
+    <input type="checkbox" [ngModel]="product().featured" (ngModelChange)="updateProductField('featured', $event)" />
+  </label>
+  <label class="full-span">
+    URL de vídeo
+    <input class="field" [class.invalid]="validationErrors()['videoUrl']" type="text" [ngModel]="product().videoUrl" (ngModelChange)="updateProductField('videoUrl', $event)" />
+    @if (validationErrors()['videoUrl']) {
+      <small class="field-error">{{ validationErrors()['videoUrl'] }}</small>
+    }
+  </label>
+  <label class="full-span">
+    Benefícios, um por linha
+    <textarea class="textarea" [class.invalid]="validationErrors()['benefits']" [ngModel]="product().benefits.join('\n')" (ngModelChange)="updateProductList('benefits', $event)"></textarea>
+    @if (validationErrors()['benefits']) {
+      <small class="field-error">{{ validationErrors()['benefits'] }}</small>
+    }
+  </label>
+
+  <app-admin-image-gallery
+    [images]="product().images"
+    [productName]="product().name"
+    [token]="token()"
+    [validationError]="validationErrors()['images'] || ''"
+    (imagesChange)="onImagesChange($event)"
+    (unauthorized)="unauthorized.emit()"
+  />
+</div>

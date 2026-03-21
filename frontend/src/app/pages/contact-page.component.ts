@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../services/api.service';
@@ -8,12 +8,14 @@ import { SiteContent } from '../types';
 @Component({
   selector: 'app-contact-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './contact-page.component.html',
-  styleUrl: './contact-page.component.scss'
+  styleUrl: './contact-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactPageComponent implements OnInit {
   private readonly apiService = inject(ApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly content = signal<SiteContent | null>(null);
   protected readonly form = {
@@ -24,7 +26,9 @@ export class ContactPageComponent implements OnInit {
   protected readonly submitted = signal(false);
 
   ngOnInit(): void {
-    this.apiService.getContent().subscribe((content) => this.content.set(content));
+    this.apiService.getContent().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((content) => this.content.set(content));
   }
 
   protected send(): void {
@@ -41,7 +45,7 @@ export class ContactPageComponent implements OnInit {
     this.submitted.set(true);
   }
 
-  protected get whatsappLink(): string {
+  protected readonly whatsappLink = computed(() => {
     const page = this.content();
 
     if (!page?.contact.whatsapp) {
@@ -52,5 +56,5 @@ export class ContactPageComponent implements OnInit {
     const text = encodeURIComponent('Olá, gostaria de esclarecer algumas dúvidas sobre os produtos.');
 
     return `https://wa.me/${number}?text=${text}`;
-  }
+  });
 }

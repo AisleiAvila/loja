@@ -1,10 +1,13 @@
-<section class="product-page section-shell" *ngIf="product() as item">
+@if (product(); as item) {
+<section class="product-page section-shell">
   <div class="gallery card">
     <img class="main-image" [src]="selectedImage() || item.images[0]" [alt]="item.name" />
     <div class="thumbs">
-      <button type="button" *ngFor="let image of item.images" (click)="selectImage(image)" [class.active]="selectedImage() === image">
-        <img [src]="image" [alt]="item.name" loading="lazy" />
-      </button>
+      @for (image of item.images; track image) {
+        <button type="button" (click)="selectImage(image)" [class.active]="selectedImage() === image">
+          <img [src]="image" [alt]="item.name" loading="lazy" />
+        </button>
+      }
     </div>
   </div>
 
@@ -15,11 +18,15 @@
 
     <div class="price-block">
       <strong>{{ item.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</strong>
-      <span *ngIf="item.compareAtPrice">{{ item.compareAtPrice | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</span>
+      @if (item.compareAtPrice) {
+        <span>{{ item.compareAtPrice | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT' }}</span>
+      }
     </div>
 
     <ul class="benefit-list">
-      <li *ngFor="let benefit of item.benefits">{{ benefit }}</li>
+      @for (benefit of item.benefits; track benefit) {
+        <li>{{ benefit }}</li>
+      }
     </ul>
 
     <div class="actions">
@@ -27,10 +34,13 @@
       <a class="btn-ghost" routerLink="/contacto">Falar com a equipa</a>
     </div>
 
-    <div class="video-box" *ngIf="item.videoUrl">
-      <video [src]="item.videoUrl" controls preload="metadata">
-        <track default kind="captions" label="Português" srclang="pt" src="/captions-demo.vtt" />
-      </video>
-    </div>
+    @if (item.videoUrl) {
+      <div class="video-box">
+        <video [src]="item.videoUrl" controls preload="metadata">
+          <track default kind="captions" label="Português" srclang="pt" src="/captions-demo.vtt" />
+        </video>
+      </div>
+    }
   </div>
 </section>
+}

@@ -1,5 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../services/api.service';
@@ -10,9 +9,10 @@ import { AdminProductsComponent } from './admin-products.component';
 @Component({
   selector: 'app-admin-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminProductsComponent, AdminOrdersComponent, AdminContentComponent],
+  imports: [FormsModule, AdminProductsComponent, AdminOrdersComponent, AdminContentComponent],
   templateUrl: './admin-page.component.html',
-  styleUrl: './admin-page.component.scss'
+  styleUrl: './admin-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminPageComponent {
   private readonly apiService = inject(ApiService);

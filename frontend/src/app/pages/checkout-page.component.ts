@@ -1,5 +1,6 @@
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -9,15 +10,17 @@ import { OrderFormValue, Product } from '../types';
 @Component({
   selector: 'app-checkout-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, CurrencyPipe],
   templateUrl: './checkout-page.component.html',
-  styleUrl: './checkout-page.component.scss'
+  styleUrl: './checkout-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CheckoutPageComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly apiService = inject(ApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly products = signal<Product[]>([]);
   protected readonly errorMessage = signal('');
@@ -60,7 +63,9 @@ export class CheckoutPageComponent implements OnInit {
       this.infoMessage.set('O pagamento por cartão foi cancelado. Pode tentar novamente ou escolher outro método.');
     }
 
-    this.apiService.getProducts().subscribe((products) => {
+    this.apiService.getProducts().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((products) => {
       this.products.set(products);
 
       const requestedProduct = this.route.snapshot.queryParamMap.get('product');

@@ -6,6 +6,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const cors = require('cors');
 const express = require('express');
+const helmet = require('helmet');
 const { uploadDir, siteUrl } = require('./config');
 const { errorHandler } = require('./middleware/errorHandler');
 const productsRouter = require('./routes/products');
@@ -21,13 +22,14 @@ const port = Number(process.env.PORT || 3000);
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [siteUrl]
   : [siteUrl, 'http://localhost:4200', 'http://localhost:4000'];
+app.use(helmet());
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use('/uploads', express.static(uploadDir));
 
 // Webhook must be registered before express.json() to receive the raw body
 app.use('/api/payments/stripe', webhookRouter);
 
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
 
 app.use('/api/products', productsRouter);
 app.use('/api/orders', ordersRouter);

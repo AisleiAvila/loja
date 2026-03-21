@@ -38,14 +38,15 @@
     </div>
   </footer>
 
-  <a
-    *ngIf="siteContent()?.contact?.whatsapp"
-    class="whatsapp-float"
-    [href]="whatsappLink"
-    target="_blank"
-    rel="noopener"
-    aria-label="Falar pelo WhatsApp"
-  >
-    WhatsApp
-  </a>
+  @if (siteContent()?.contact?.whatsapp) {
+    <a
+      class="whatsapp-float"
+      [href]="whatsappLink()"
+      target="_blank"
+      rel="noopener"
+      aria-label="Falar pelo WhatsApp"
+    >
+      WhatsApp
+    </a>
+  }
 </div>

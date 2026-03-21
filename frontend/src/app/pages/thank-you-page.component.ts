@@ -1,5 +1,6 @@
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ApiService } from '../services/api.service';
@@ -8,13 +9,15 @@ import { Order } from '../types';
 @Component({
   selector: 'app-thank-you-page',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, RouterLink],
+  imports: [CurrencyPipe, DatePipe, RouterLink],
   templateUrl: './thank-you-page.component.html',
-  styleUrl: './thank-you-page.component.scss'
+  styleUrl: './thank-you-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ThankYouPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly apiService = inject(ApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly order = signal<Order | null>(null);
   protected readonly loading = signal(true);
@@ -23,7 +26,9 @@ export class ThankYouPageComponent implements OnInit {
     const orderId = this.route.snapshot.queryParamMap.get('orderId');
 
     if (orderId) {
-      this.apiService.getOrderSummary(orderId).subscribe({
+      this.apiService.getOrderSummary(orderId).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: (order) => {
           this.order.set(order);
           localStorage.setItem('last-order', JSON.stringify(order));

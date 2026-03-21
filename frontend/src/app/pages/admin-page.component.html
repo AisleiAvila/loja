@@ -1,21 +1,23 @@
 <section class="admin section-shell">
-  <div class="login card" *ngIf="!token(); else dashboard">
-    <span class="eyebrow">Admin</span>
-    <h1>Acesso protegido</h1>
-    <p>Entre com a palavra-passe definida no backend para gerir produtos e pedidos.</p>
-    <label>
-      Palavra-passe
-      <input class="field" type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" />
-    </label>
-    <button class="btn-secondary" type="button" (click)="login()">Entrar</button>
-    <p class="status warning" *ngIf="feedback()">{{ feedback() }}</p>
-  </div>
-
-  <ng-template #dashboard>
+  @if (!token()) {
+    <div class="login card">
+      <span class="eyebrow">Admin</span>
+      <h1>Acesso protegido</h1>
+      <p>Entre com a palavra-passe definida no backend para gerir produtos e pedidos.</p>
+      <label>
+        Palavra-passe
+        <input class="field" type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" />
+      </label>
+      <button class="btn-secondary" type="button" (click)="login()">Entrar</button>
+      @if (feedback()) {
+        <p class="status warning">{{ feedback() }}</p>
+      }
+    </div>
+  } @else {
     <div class="dashboard-grid">
       <app-admin-products [token]="token()" (unauthorized)="onUnauthorized()" />
       <app-admin-content [token]="token()" (unauthorized)="onUnauthorized()" />
       <app-admin-orders [token]="token()" (unauthorized)="onUnauthorized()" />
     </div>
-  </ng-template>
+  }
 </section>

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ApiService } from '../services/api.service';
 import { SiteContent } from '../types';
@@ -7,16 +7,19 @@ import { SiteContent } from '../types';
 @Component({
   selector: 'app-about-page',
   standalone: true,
-  imports: [CommonModule],
   templateUrl: './about-page.component.html',
-  styleUrl: './about-page.component.scss'
+  styleUrl: './about-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AboutPageComponent implements OnInit {
   private readonly apiService = inject(ApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly content = signal<SiteContent | null>(null);
 
   ngOnInit(): void {
-    this.apiService.getContent().subscribe((content) => this.content.set(content));
+    this.apiService.getContent().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((content) => this.content.set(content));
   }
 }

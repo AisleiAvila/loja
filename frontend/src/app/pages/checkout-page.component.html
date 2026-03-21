@@ -9,7 +9,9 @@
       <label>
         Produto
         <select class="select" formControlName="productId">
-          <option *ngFor="let product of products()" [value]="product.id">{{ product.name }}</option>
+          @for (product of products(); track product.id) {
+            <option [value]="product.id">{{ product.name }}</option>
+          }
         </select>
       </label>
 
@@ -55,20 +57,27 @@
     </div>
 
     <div class="payment-list">
-      <label class="payment-card" *ngFor="let method of paymentMethods">
-        <input type="radio" [value]="method.id" formControlName="paymentMethod" />
-        <span>{{ method.label }}</span>
-      </label>
+      @for (method of paymentMethods; track method.id) {
+        <label class="payment-card">
+          <input type="radio" [value]="method.id" formControlName="paymentMethod" />
+          <span>{{ method.label }}</span>
+        </label>
+      }
     </div>
 
     <button class="btn-secondary" type="submit" [disabled]="submitting()">
       {{ submitting() ? 'A processar...' : 'Finalizar pedido' }}
     </button>
-    <p class="status warning" *ngIf="infoMessage()">{{ infoMessage() }}</p>
-    <p class="status warning" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+    @if (infoMessage()) {
+      <p class="status warning">{{ infoMessage() }}</p>
+    }
+    @if (errorMessage()) {
+      <p class="status warning">{{ errorMessage() }}</p>
+    }
   </form>
 
-  <aside class="checkout-summary card" *ngIf="selectedProduct() as product">
+  @if (selectedProduct(); as product) {
+    <aside class="checkout-summary card">
     <span class="eyebrow">Resumo</span>
     <img [src]="product.images[0]" [alt]="product.name" />
     <h2>{{ product.name }}</h2>
@@ -89,4 +98,5 @@
       </div>
     </dl>
   </aside>
+  }
 </section>

@@ -1,0 +1,41 @@
+<label class="full-span">
+  Imagens, uma por linha
+  <textarea class="textarea" [class.invalid]="validationError()" [ngModel]="images().join('\n')" (ngModelChange)="updateImagesFromText($event)"></textarea>
+  @if (validationError()) {
+    <small class="field-error">{{ validationError() }}</small>
+  }
+</label>
+
+<label class="full-span upload-field">
+  Enviar imagem
+  <input class="field" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" (change)="uploadImage($event)" [disabled]="isUploading()" />
+  <small class="field-help">A imagem enviada é adicionada à lista acima.</small>
+  @if (isUploading()) {
+    <small class="field-help">A enviar imagem...</small>
+  }
+  @if (feedback() && !isUploading()) {
+    <div class="upload-feedback">
+      @if (feedback().includes('sucesso') || feedback().includes('removida')) {
+        <small class="field-success">{{ feedback() }}</small>
+      } @else {
+        <small class="field-error">{{ feedback() }}</small>
+      }
+      <button class="btn-ghost compact" type="button" (click)="clearFeedback()">Limpar</button>
+    </div>
+  }
+</label>
+
+@if (images().length) {
+  <div class="full-span image-preview-section">
+    <span>Pré-visualização</span>
+    <div class="image-preview-grid">
+      @for (image of images(); track image) {
+        <figure class="image-preview-card">
+          <img [src]="image" [alt]="productName()" />
+          <figcaption>{{ image }}</figcaption>
+          <button class="btn-ghost compact image-remove-btn" type="button" (click)="removeImage(image)">Remover</button>
+        </figure>
+      }
+    </div>
+  </div>
+}
