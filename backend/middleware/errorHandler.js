@@ -1,10 +1,15 @@
 const multer = require('multer');
+const { z } = require('zod');
 const { StorageOperationError } = require('../storage/errors');
 const { invalidImageTypeMessage } = require('../config');
 
 function errorHandler(error, _req, res, next) {
   if (res.headersSent) {
     return next(error);
+  }
+
+  if (error instanceof z.ZodError) {
+    return res.status(400).json({ message: 'Dados inválidos.', issues: error.issues });
   }
 
   if (error instanceof multer.MulterError) {

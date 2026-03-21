@@ -1,11 +1,11 @@
 const express = require('express');
-const { z } = require('zod');
-const { ensureAdmin } = require('../middleware/auth');
+const { ensureAdmin, adminLimiter, logAdminAction, validateParamId } = require('../middleware/auth');
 const { productSchema, newProductSchema } = require('../schemas');
-const { StorageOperationError } = require('../storage/errors');
 const { deleteManagedAssets } = require('../storage/assets');
 const { listProducts, getProductBySlug, getProductById, saveProduct, deleteProduct, normalizeProductId } = require('../services/productService');
 const { hasOrdersForProduct } = require('../services/orderService');
+
+const validateProductId = validateParamId(/^[a-z0-9-]{1,200}$/);
 
 const router = express.Router();
 
@@ -32,7 +32,7 @@ router.get('/:slug', async (req, res, next) => {
   }
 });
 
-router.post('/', ensureAdmin, async (req, res) => {
+router.post('/', ensureAdmin, adminLimiter, logAdminAction, async (req, res, next) => {
   try {
     const payload = newProductSchema.parse(req.body);
     const productId = normalizeProductId(payload.id || payload.slug || payload.name);
@@ -61,19 +61,11 @@ router.post('/', ensureAdmin, async (req, res) => {
     const savedProduct = await saveProduct(createdProduct);
     return res.status(201).json(savedProduct);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: 'Produto inválido.', issues: error.issues });
-    }
-
-    if (error instanceof StorageOperationError) {
-      return res.status(502).json({ message: error.message });
-    }
-
-    return res.status(500).json({ message: 'Erro interno ao criar produto.' });
+    return next(error);
   }
 });
 
-router.put('/:id', ensureAdmin, async (req, res) => {
+router.put('/:id', ensureAdmin, adminLimiter, logAdminAction, validateProductId, async (req, res, next) => {
   try {
     const existingProduct = await getProductById(req.params.id);
 
@@ -95,19 +87,11 @@ router.put('/:id', ensureAdmin, async (req, res) => {
     const savedProduct = await saveProduct(updatedProduct);
     return res.json(savedProduct);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: 'Produto inválido.', issues: error.issues });
-    }
-
-    if (error instanceof StorageOperationError) {
-      return res.status(502).json({ message: error.message });
-    }
-
-    return res.status(500).json({ message: 'Erro interno ao atualizar produto.' });
+    return next(error);
   }
 });
 
-router.delete('/:id', ensureAdmin, async (req, res, next) => {
+router.delete('/:id', ensureAdmin, adminLimiter, logAdminAction, validateProductId, async (req, res, next) => {
   try {
     const existingProduct = await getProductById(req.params.id);
 

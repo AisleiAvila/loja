@@ -26,6 +26,31 @@ const orderLimiter = rateLimit({
   message: { message: 'Demasiados pedidos. Tente novamente em 15 minutos.' }
 });
 
+const adminLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados pedidos administrativos. Tente novamente em 1 minuto.' }
+});
+
+function logAdminAction(req, _res, next) {
+  if (req.method !== 'GET') {
+    console.log(`[admin] ${new Date().toISOString()} ${req.method} ${req.baseUrl}${req.path}`);
+  }
+  return next();
+}
+
+function validateParamId(pattern) {
+  return (req, res, next) => {
+    const id = req.params.id;
+    if (!id || !pattern.test(id)) {
+      return res.status(400).json({ message: 'Identificador inválido.' });
+    }
+    return next();
+  };
+}
+
 function ensureAdmin(req, res, next) {
   const authorization = req.header('authorization') || '';
   const token = authorization.startsWith('Bearer ') ? authorization.slice(7) : '';
@@ -43,4 +68,4 @@ function ensureAdmin(req, res, next) {
   }
 }
 
-module.exports = { ensureAdmin, loginLimiter, orderLimiter, publicReadLimiter };
+module.exports = { ensureAdmin, loginLimiter, orderLimiter, publicReadLimiter, adminLimiter, logAdminAction, validateParamId };

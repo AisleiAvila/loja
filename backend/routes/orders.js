@@ -1,9 +1,7 @@
 const crypto = require('node:crypto');
 const express = require('express');
-const { z } = require('zod');
 const { stripe, siteUrl, stripePaymentMethodTypes } = require('../config');
 const { orderSchema } = require('../schemas');
-const { StorageOperationError } = require('../storage/errors');
 const { buildAbsoluteAssetUrl } = require('../storage/assets');
 const { ensureAdmin, orderLimiter, publicReadLimiter } = require('../middleware/auth');
 const { listOrders, getOrderById, createOrder, updateOrder } = require('../services/orderService');
@@ -35,7 +33,7 @@ router.get('/:id/summary', publicReadLimiter, async (req, res, next) => {
   }
 });
 
-router.post('/', orderLimiter, async (req, res) => {
+router.post('/', orderLimiter, async (req, res, next) => {
   try {
     const payload = orderSchema.parse(req.body);
     const product = await getProductById(payload.productId);
@@ -106,15 +104,7 @@ router.post('/', orderLimiter, async (req, res) => {
       paymentProvider: 'manual'
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: 'Dados inválidos.', issues: error.issues });
-    }
-
-    if (error instanceof StorageOperationError) {
-      return res.status(502).json({ message: error.message });
-    }
-
-    return res.status(500).json({ message: 'Erro interno ao criar o pedido.' });
+    return next(error);
   }
 });
 

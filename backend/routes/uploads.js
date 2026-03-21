@@ -5,7 +5,7 @@ const { Readable } = require('node:stream');
 const express = require('express');
 const { put, get } = require('@vercel/blob');
 const { blobReadWriteToken, uploadDir, supabase, stripe, upload } = require('../config');
-const { ensureAdmin } = require('../middleware/auth');
+const { ensureAdmin, adminLimiter, logAdminAction } = require('../middleware/auth');
 const {
   isPrivateBlobStoreError,
   decodeManagedBlobPathname,
@@ -16,7 +16,7 @@ const {
 
 const router = express.Router();
 
-router.get('/health', (_req, res) => {
+router.get('/health', ensureAdmin, (_req, res) => {
   const assetStorage = blobReadWriteToken ? 'vercel-blob' : 'local-filesystem';
 
   res.json({
@@ -27,7 +27,7 @@ router.get('/health', (_req, res) => {
   });
 });
 
-router.post('/uploads/image', ensureAdmin, upload.single('image'), async (req, res, next) => {
+router.post('/uploads/image', ensureAdmin, adminLimiter, logAdminAction, upload.single('image'), async (req, res, next) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'Nenhum ficheiro enviado.' });
