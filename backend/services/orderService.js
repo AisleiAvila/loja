@@ -1,0 +1,97 @@
+const { supabase } = require('../config');
+const { createStorageOperationError } = require('../storage/errors');
+const { mapOrderRow, serializeOrder, serializeOrderPatch } = require('../storage/mappers');
+const { readLocalStore, writeLocalStore } = require('../storage/localStore');
+
+async function listOrders() {
+  if (supabase) {
+    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+
+    if (!error && data) {
+      return data.map(mapOrderRow);
+    }
+  }
+
+  const store = await readLocalStore();
+  return store.orders;
+}
+
+async function getOrderById(orderId) {
+  if (supabase) {
+    const { data, error } = await supabase.from('orders').select('*').eq('id', orderId).maybeSingle();
+
+    if (!error && data) {
+      return mapOrderRow(data);
+    }
+  }
+
+  const store = await readLocalStore();
+  return store.orders.find((order) => order.id === orderId) || null;
+}
+
+async function hasOrdersForProduct(productId) {
+  if (supabase) {
+    const { count, error } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('product_id', productId);
+
+    if (!error) {
+      return Boolean(count);
+    }
+  }
+
+  const store = await readLocalStore();
+  return store.orders.some((order) => order.productId === productId);
+}
+
+async function createOrder(order) {
+  if (supabase) {
+    const { data, error } = await supabase.from('orders').insert(serializeOrder(order)).select().single();
+
+    if (!error && data) {
+      return mapOrderRow(data);
+    }
+
+    throw createStorageOperationError('Não foi possível gravar o pedido no Supabase.', error);
+  }
+
+  const store = await readLocalStore();
+  store.orders.unshift(order);
+  await writeLocalStore(store);
+  return order;
+}
+
+async function updateOrder(orderId, patch) {
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('orders')
+      .update(serializeOrderPatch(patch))
+      .eq('id', orderId)
+      .select()
+      .maybeSingle();
+
+    if (!error && data) {
+      return mapOrderRow(data);
+    }
+
+    throw createStorageOperationError('Não foi possível atualizar o pedido no Supabase.', error);
+  }
+
+  const store = await readLocalStore();
+  const orderIndex = store.orders.findIndex((order) => order.id === orderId);
+
+  if (orderIndex === -1) {
+    return null;
+  }
+
+  store.orders[orderIndex] = {
+    ...store.orders[orderIndex],
+    ...patch
+  };
+
+  await writeLocalStore(store);
+  return store.orders[orderIndex];
+}
+
+module.exports = { listOrders, getOrderById, hasOrdersForProduct, createOrder, updateOrder };
