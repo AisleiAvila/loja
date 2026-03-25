@@ -52,10 +52,8 @@
   background: rgba(255, 255, 255, 0.68);
 }
 
-@media (prefers-color-scheme: dark) {
-	.payment-card {
-		background: rgba(255, 255, 255, 0.06);
-	}
+:host-context([data-theme="dark"]) .payment-card {
+	background: rgba(255, 255, 255, 0.06);
 }
 .checkout-summary dl {
   display: grid;

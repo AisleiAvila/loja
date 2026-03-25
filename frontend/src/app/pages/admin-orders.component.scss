@@ -21,10 +21,8 @@
   background: rgba(255, 255, 255, 0.66);
 }
 
-@media (prefers-color-scheme: dark) {
-	.order-row {
-		background: rgba(255, 255, 255, 0.06);
-	}
+:host-context([data-theme="dark"]) .order-row {
+	background: rgba(255, 255, 255, 0.06);
 }
 
 .order-row div {

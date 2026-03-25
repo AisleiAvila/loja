@@ -42,10 +42,8 @@
   background: rgba(255, 255, 255, 0.64);
 }
 
-@media (prefers-color-scheme: dark) {
-	.hero-metrics li {
-		background: rgba(255, 255, 255, 0.06);
-	}
+:host-context([data-theme="dark"]) .hero-metrics li {
+	background: rgba(255, 255, 255, 0.06);
 }
 
 .hero-metrics strong {
@@ -168,10 +166,8 @@
   background: rgba(255, 255, 255, 0.66);
 }
 
-@media (prefers-color-scheme: dark) {
-	.story-points article {
-		background: rgba(255, 255, 255, 0.06);
-	}
+:host-context([data-theme="dark"]) .story-points article {
+	background: rgba(255, 255, 255, 0.06);
 }
 
 @media (max-width: 1024px) {

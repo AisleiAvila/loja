@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { ContentStoreService } from './services/content-store.service';
+import { ThemeService } from './services/theme.service';
 import { SiteContent } from './types';
 
 @Component({
@@ -17,6 +18,7 @@ export class App implements OnInit {
   private readonly contentStore = inject(ContentStoreService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  protected readonly themeService = inject(ThemeService);
 
   protected readonly mobileMenuOpen = signal(false);
   protected readonly siteContent = signal<SiteContent | null>(null);
