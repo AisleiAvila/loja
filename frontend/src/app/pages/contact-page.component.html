@@ -18,7 +18,7 @@
     </div>
   </section>
 } @else if (content(); as page) {
-<section class="contact section-shell">
+<section class="contact section-shell fade-in">
   <div class="contact-copy card">
     <span class="eyebrow">Contacto</span>
     <h1>Fale connosco antes da compra ou para apoio pós-venda.</h1>
@@ -45,7 +45,13 @@
       E-mail
       <input class="field" [class.invalid]="emailCtrl.touched && emailCtrl.invalid" type="email" name="email" [(ngModel)]="formEmail" required email #emailCtrl="ngModel" />
       @if (emailCtrl.touched && emailCtrl.invalid) {
-        <small class="field-error">E-mail válido é obrigatório.</small>
+        <small class="field-error">
+          @if (emailCtrl.hasError('required')) {
+            E-mail é obrigatório.
+          } @else {
+            Formato de e-mail inválido.
+          }
+        </small>
       }
     </label>
 

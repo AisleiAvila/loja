@@ -19,7 +19,7 @@
       <div class="nav-overlay" (click)="closeMobileMenu()"></div>
     }
 
-    <nav class="main-nav" [class.open]="mobileMenuOpen()">
+    <nav class="main-nav" #mainNav [class.open]="mobileMenuOpen()">>
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">Home</a>
       <a routerLink="/sobre" routerLinkActive="active" (click)="closeMobileMenu()">Sobre</a>
       <a routerLink="/contacto" routerLinkActive="active" (click)="closeMobileMenu()">Contacto</a>

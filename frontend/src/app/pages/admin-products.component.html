@@ -24,9 +24,9 @@
       <span>{{ filteredProducts().length }} resultado(s)</span>
       @if (totalProductPages() > 1) {
         <div class="catalog-pagination">
-          <button class="btn-ghost compact" type="button" (click)="goToProductPage('previous')" [disabled]="currentProductPage() === 1">Anterior</button>
+          <button class="btn-ghost compact" type="button" (click)="goToProductPage('previous')" [disabled]="currentProductPage() === 1" aria-label="Página anterior">Anterior</button>
           <span>Página {{ currentProductPage() }} de {{ totalProductPages() }}</span>
-          <button class="btn-ghost compact" type="button" (click)="goToProductPage('next')" [disabled]="currentProductPage() === totalProductPages()">Seguinte</button>
+          <button class="btn-ghost compact" type="button" (click)="goToProductPage('next')" [disabled]="currentProductPage() === totalProductPages()" aria-label="Próxima página">Seguinte</button>
         </div>
       }
     </div>
@@ -53,7 +53,10 @@
       }
     </div>
   } @else {
-    <p class="status warning">Nenhum produto selecionado. Crie um novo produto para começar.</p>
+    <div class="empty-state">
+      <h3>Nenhum produto selecionado</h3>
+      <p>Crie um novo produto para começar a gerir o catálogo.</p>
+    </div>
   }
 
   @if (feedback()) {

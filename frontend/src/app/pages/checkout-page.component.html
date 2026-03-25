@@ -32,7 +32,13 @@
         E-mail
         <input class="field" [class.invalid]="checkoutForm.controls.email.touched && checkoutForm.controls.email.invalid" type="email" formControlName="email" />
         @if (checkoutForm.controls.email.touched && checkoutForm.controls.email.invalid) {
-          <small class="field-error">E-mail válido é obrigatório.</small>
+          <small class="field-error">
+            @if (checkoutForm.controls.email.hasError('required')) {
+              E-mail é obrigatório.
+            } @else {
+              Formato de e-mail inválido.
+            }
+          </small>
         }
       </label>
 

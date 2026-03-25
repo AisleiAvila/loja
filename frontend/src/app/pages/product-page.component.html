@@ -3,10 +3,10 @@
 } @else if (loading() && !product()) {
   <section class="product-page section-shell">
     <div class="gallery card">
-      <div class="skeleton" style="aspect-ratio: 4 / 5; border-radius: 1.25rem"></div>
+      <app-skeleton-block aspectRatio="4 / 5" radius="1.25rem" />
       <div class="thumbs">
         @for (i of [1, 2, 3]; track i) {
-          <div class="skeleton" style="aspect-ratio: 1"></div>
+          <app-skeleton-block aspectRatio="1" />
         }
       </div>
     </div>
@@ -18,13 +18,13 @@
       <div class="skeleton-text large" style="width: 30%"></div>
       <div style="display: grid; gap: 0.75rem">
         @for (i of [1, 2, 3]; track i) {
-          <div class="skeleton" style="height: 3rem"></div>
+          <app-skeleton-block height="3rem" />
         }
       </div>
     </div>
   </section>
 } @else if (product(); as item) {
-<section class="product-page section-shell">
+<section class="product-page section-shell fade-in">
   <div class="gallery card">
     <img class="main-image" [src]="selectedImage() || item.images[0]" [alt]="item.name" />
     <div class="thumbs">

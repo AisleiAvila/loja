@@ -19,18 +19,12 @@
     </div>
     <div class="product-grid">
       @for (i of [1, 2, 3]; track i) {
-        <div class="product-card card">
-          <div class="skeleton" style="aspect-ratio: 4 / 5"></div>
-          <div style="padding: 1.2rem; display: grid; gap: 0.85rem">
-            <div class="skeleton-text medium"></div>
-            <div class="skeleton-text small"></div>
-          </div>
-        </div>
+        <app-skeleton-card />
       }
     </div>
   </section>
 } @else {
-<section class="hero section-shell">
+<section class="hero section-shell fade-in">
   <div class="hero-copy card">
     <span class="eyebrow">Coleção portuguesa</span>
     <h1>{{ content()?.brand?.headline }}</h1>
@@ -80,7 +74,7 @@
   </div>
 </section>
 
-<section id="produtos" class="products section-shell">
+<section id="produtos" class="products section-shell fade-in">
   <div class="section-heading">
     <span class="eyebrow">Produtos</span>
     <h2>Oferta curta, comunicação objetiva e foco total em conversão.</h2>
@@ -108,14 +102,15 @@
       @if (!loading()) {
         <div class="empty-state" style="grid-column: 1 / -1">
           <h3>Sem produtos disponíveis</h3>
-          <p>De momento não existem produtos em destaque. Volte mais tarde.</p>
+          <p>De momento não existem produtos em destaque. Volte mais tarde ou entre em contacto.</p>
+          <a class="btn-ghost" routerLink="/contacto">Falar connosco</a>
         </div>
       }
     }
   </div>
 </section>
 
-<section class="story-band section-shell card">
+<section class="story-band section-shell card fade-in">
   <div>
     <span class="eyebrow">Porque funciona</span>
     <h2>O site foi estruturado para vender sem ruído: prova visual, diferenciação e compra direta.</h2>

@@ -6,11 +6,12 @@ import { RouterLink } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { ContentStoreService } from '../services/content-store.service';
 import { Product, SiteContent } from '../types';
+import { SkeletonCardComponent } from '../components/skeleton-card/skeleton-card.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe],
+  imports: [RouterLink, CurrencyPipe, SkeletonCardComponent],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

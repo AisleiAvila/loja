@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, OnInit, PLATFORM_ID, computed, inject, signal, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -20,6 +20,7 @@ export class App implements OnInit {
 
   protected readonly mobileMenuOpen = signal(false);
   protected readonly siteContent = signal<SiteContent | null>(null);
+  protected readonly mainNav = viewChild<ElementRef<HTMLElement>>('mainNav');
 
   ngOnInit(): void {
     this.contentStore.getContent().pipe(
@@ -38,10 +39,30 @@ export class App implements OnInit {
     this.mobileMenuOpen.set(false);
   }
 
-  @HostListener('document:keydown.escape')
-  protected onEscape(): void {
-    if (this.mobileMenuOpen()) {
+  @HostListener('document:keydown', ['$event'])
+  protected onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.mobileMenuOpen()) {
       this.mobileMenuOpen.set(false);
+      return;
+    }
+
+    if (event.key !== 'Tab' || !this.mobileMenuOpen()) return;
+
+    const nav = this.mainNav()?.nativeElement;
+    if (!nav) return;
+
+    const focusable = nav.querySelectorAll<HTMLElement>('a, button, input, [tabindex]');
+    if (!focusable.length) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
     }
   }
 

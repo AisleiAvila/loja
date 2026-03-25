@@ -6,11 +6,12 @@ import { EMPTY, switchMap } from 'rxjs';
 
 import { ApiService } from '../services/api.service';
 import { Product } from '../types';
+import { SkeletonBlockComponent } from '../components/skeleton-block/skeleton-block.component';
 
 @Component({
   selector: 'app-product-page',
   standalone: true,
-  imports: [CurrencyPipe, RouterLink],
+  imports: [CurrencyPipe, RouterLink, SkeletonBlockComponent],
   templateUrl: './product-page.component.html',
   styleUrl: './product-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

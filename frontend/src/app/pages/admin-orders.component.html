@@ -21,14 +21,17 @@
       </span>
     </div>
   } @empty {
-    <p class="status warning">Nenhum pedido encontrado.</p>
+    <div class="empty-state">
+      <h3>Nenhum pedido encontrado</h3>
+      <p>Quando houver encomendas, elas aparecerão aqui.</p>
+    </div>
   }
 
   @if (totalPages() > 1) {
-    <div class="pagination">
-      <button [disabled]="currentPage() <= 1" (click)="goToPage('previous')">Anterior</button>
+    <nav class="pagination" aria-label="Paginação dos pedidos">
+      <button [disabled]="currentPage() <= 1" (click)="goToPage('previous')" aria-label="Página anterior">Anterior</button>
       <span>Página {{ currentPage() }} de {{ totalPages() }}</span>
-      <button [disabled]="currentPage() >= totalPages()" (click)="goToPage('next')">Seguinte</button>
-    </div>
+      <button [disabled]="currentPage() >= totalPages()" (click)="goToPage('next')" aria-label="Próxima página">Seguinte</button>
+    </nav>
   }
 </section>

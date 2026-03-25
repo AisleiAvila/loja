@@ -82,22 +82,12 @@
   padding: 0.55rem 0.85rem;
 }
 
-.field.invalid,
-.textarea.invalid,
-.select.invalid {
-  border-color: rgba(120, 34, 34, 0.45);
-  outline: 2px solid rgba(120, 34, 34, 0.12);
-}
+/* field.invalid + field-error are in global styles.scss */
 
-.field-error,
 .field-help,
 .field-success {
-  font-size: var(--text-xs);
-  line-height: 1.4;
-}
-
-.field-error {
-  color: #782222;
+	font-size: var(--text-xs);
+	line-height: 1.4;
 }
 
 .field-help {
@@ -160,7 +150,7 @@
   color: rgba(31, 45, 42, 0.72);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .panel-header {
     grid-template-columns: 1fr;
   }

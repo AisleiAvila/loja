@@ -32,18 +32,9 @@
   font-weight: 600;
 }
 
-.field.invalid,
-.textarea.invalid {
-  border-color: rgba(120, 34, 34, 0.45);
-  outline: 2px solid rgba(120, 34, 34, 0.12);
-}
+/* field.invalid + field-error are in global styles.scss */
 
-.field-error {
-  font-size: var(--text-xs);
-  color: #782222;
-}
-
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .contact {
     grid-template-columns: 1fr;
   }

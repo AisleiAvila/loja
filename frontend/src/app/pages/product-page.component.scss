@@ -95,6 +95,12 @@
   background: rgba(255, 255, 255, 0.68);
 }
 
+@media (prefers-color-scheme: dark) {
+	.benefit-list li {
+		background: rgba(255, 255, 255, 0.06);
+	}
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -106,7 +112,7 @@
   border-radius: 1.1rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .product-page {
     grid-template-columns: 1fr;
   }
